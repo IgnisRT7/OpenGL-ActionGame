@@ -71,18 +71,21 @@ bool VertexArrayObject::Init(GLuint vboId, GLuint iboId){
 		return false;
 	}
 
-	return false;
+	std::cout << "completed." << std::endl;
+
+	return true;
 }
 
 bool VertexArrayObject::Bind(){
 
 	glBindVertexArray(id);
-	return glGetError() != GL_NO_ERROR;
+	return glGetError() == GL_NO_ERROR;
 }
 
 void VertexArrayObject::UnBind(bool vaoiboUnBind){
 
 	glBindVertexArray(0);
+
 	if (vaoiboUnBind) {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -91,5 +94,6 @@ void VertexArrayObject::UnBind(bool vaoiboUnBind){
 
 void VertexArrayObject::VertexAttribPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLvoid* offset, GLboolean normalized){
 
+	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, offset);
 }

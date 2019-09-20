@@ -97,6 +97,7 @@ public:
 	*	@param normalize 正規化フラグ(Default = GL_FALSE)
 	*/
 	void VertexAttribPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLvoid* offset, GLboolean normalized = GL_FALSE);
+
 	/**
 	*	オブジェクトIDの取得
 	*
@@ -114,5 +115,5 @@ public:
 
 private:
 
-	GLuint id;
+	GLuint id = 0;
 };
