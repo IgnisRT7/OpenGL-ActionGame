@@ -12,6 +12,7 @@ uniform mat4 matVP;
 void main() {
 
 	outTexCoord = vTexcoord;
-  outColor = vColor;
-  gl_Position = vec4(vPosition, 1.0);
+	outColor = vColor;
+
+  gl_Position = matVP * vec4(vPosition, 1.0);
 }

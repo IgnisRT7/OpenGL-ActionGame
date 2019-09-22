@@ -151,6 +151,9 @@ namespace Shader {
 				break;
 			}
 		}
+
+		//matVP用ロケーション位置を取得する
+		p->matVPLocation = glGetUniformLocation(p->program, "matVP");
 		
 		return p;
 	}
@@ -162,6 +165,15 @@ namespace Shader {
 			glActiveTexture(unit);
 			glBindTexture(type, texture);
 		}
+	}
+
+	void Program::SetViewProjectionMatrix(glm::mat4& matVP){
+		
+		if (matVPLocation >= 0) {
+
+			glUniformMatrix4fv(matVPLocation, 1, GL_FLOAT, &matVP[0][0]);
+		}
+
 	}
 
 	Program::~Program() {

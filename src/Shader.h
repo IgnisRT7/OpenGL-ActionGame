@@ -55,7 +55,7 @@ namespace Shader {
 		*
 		*	@param matVP	ビュー射影変換行列
 		*/
-		void SetViewProjectionMatrix(glm::mat4 matVP);
+		void SetViewProjectionMatrix(glm::mat4& matVP);
 
 	private:
 
@@ -66,7 +66,7 @@ namespace Shader {
 
 	private:
 
-		GLint matVPLocation = -1;
+		GLint matVPLocation = -1;	///< MVPロケーション位置
 
 		int samperCount = 0;		///< テクスチャサンプラー数
 		GLint samplerLocation = -1;	///< テクスチャサンプラー位置
