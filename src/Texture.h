@@ -1,62 +1,76 @@
 /**
-* @file Texture.h
+*	@file	Texture.h
+*	@brief	テクスチャの生成・管理
+*	@author	tn-mai(講義資料製作者)
 */
-#ifndef TEXTURE_H_INCLUDED
-#define TEXTURE_H_INCLUDED
+
+#pragma once
+
 #include <GL/glew.h>
 #include <memory>
-#include <string>
-#include <glm/glm.hpp>
-#include <vector>
 
+class Texture;
+using TexturePtr = std::shared_ptr<Texture>;	///< テクスチャポインタ
+
+/**
+*	テクスチャクラス
+*/
 class Texture {
+public:
+
+	/**
+	*	2Dテクスチャを作成する
+	*
+	*	@param width	テクスチャの幅(ピクセル数)
+	*	@param height	テクスチャの高さ(ピクセル数)
+	*	@param iformat	テクスチャのデータ形式
+	*	@param format	アクセスする要素
+	*	@param data		テクスチャのデータへのポインタ
+	*
+	*	@return 作成に成功した場合はテクスチャポインタを返す
+	*			失敗した場合はnullptrを返す
+	*/
+	static TexturePtr Create(int width, int height, GLenum iformat, GLenum format, const void* data);
+
+	/**
+	*	ファイルから2Dテクスチャを読み込む
+	*
+	*	@param	filename ファイル名
+	*
+	*	@return 作成に成功した場合はテクスチャポインタを返す
+	*			失敗した場合はnullptrを返す
+	*/
+	static TexturePtr LoadFromFile(const char*);
+
+	/**
+	*	テクスチャの取得
+	*
+	*	@return テクスチャID
+	*/
+	GLuint Id() const { return texId; }
+
+	/**
+	*	テクスチャの横幅を取得
+	*
+	*	@return テクスチャの横幅
+	*/
+	GLsizei Width() const { return width; }
+
+	/**
+	*	テクスチャの縦幅を取得
+	*
+	*	@return テクスチャの縦幅
+	*/
+	GLsizei Height() const { return height; }
+
 private:
 
 	Texture() = default;
+	~Texture();
 	Texture(const Texture&) = delete;
-	const Texture operator=(const Texture&) = delete;
-	~Texture() = default;
+	Texture& operator=(const Texture&) = delete;
 
-	/**
-	*	@desc	テクスチャIDの取得
-	*
-	*	@return	テクスチャID
-	*/
-	GLuint Id() const { return textureId; }
-
-	/**
-	*	テクスチャの幅の取得
-	*
-	*	@return テクスチャの幅　
-	*/
-	GLint Width() const { return width; }
-
-	/**
-	*	テクスチャの高さの取得
-	*
-	*	@return テクスチャの高さ
-	*/
-	GLint Height() const { return height; }
-
-	/**
-	*	テクスチャ名の取得
-	*
-	*	@return テクスチャ名
-	*/
-	std::string Name() const { return name; }
-
-public:
-
-	GLuint textureId;	///< テクスチャID
-	GLint width = -1;	///< テクスチャの幅
-	GLint height = -1;	///< テクスチャの高さ
-
-	std::string name;	///< テクスチャ名1
+	GLuint texId = 0;
+	int width = 0;
+	int height = 0;
 };
-
-using TexturePtr = std::shared_ptr<Texture>;
-
-
-
-
-#endif
