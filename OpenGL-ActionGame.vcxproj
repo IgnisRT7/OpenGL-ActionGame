@@ -161,14 +161,20 @@
   <ItemGroup>
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\GLSystem.h" />
+    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="res\shader\Default.frag" />
+    <None Include="res\shader\Default.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
