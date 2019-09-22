@@ -132,8 +132,36 @@ namespace Shader {
 		ReadFromFile(fsPass, fsBuf);
 
 		p->program = CreateShaderProgram(vsBuf.data(), fsBuf.data());
+
+		//サンプラーの数と位置を取得する
+		GLint activeUniforms;
+		glGetProgramiv(p->program, GL_ACTIVE_UNIFORMS, &activeUniforms);
+		for (int i = 0; i < activeUniforms; ++i) {
+			GLint size;
+			GLenum type;
+			GLchar name[128];
+			glGetActiveUniform(p->program, i, sizeof(name), nullptr, &size, &type, name);
+			if (type == GL_SAMPLER_2D) {
+				p->samperCount = size;
+				p->samplerLocation = glGetUniformLocation(p->program, name);
+				if (p->samplerLocation < 0) {
+					std::cerr << "ERROR: プログラム'" << vsPass << "'の作成に失敗しました" << std::endl;
+					return {};
+				}
+				break;
+			}
+		}
 		
 		return p;
+	}
+
+	void Program::BindTexture(GLuint unit, GLuint texture, GLuint type){
+
+		if (unit >= GL_TEXTURE0 && static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
+
+			glActiveTexture(unit);
+			glBindTexture(type, texture);
+		}
 	}
 
 	Program::~Program() {

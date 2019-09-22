@@ -36,21 +36,19 @@ namespace Shader {
 		bool UseProgram() const;
 
 		/**
-		*	パラメータ設定処理
-		*	
-		*/
-		template <typename T>
-		void SetParameter(T param) {
-
-		}
-
-		/**
 		*	このプログラムオブジェクトが有効化どうか調べる
 		*
 		*	@retval	true	有効	
 		*	@retval false	無効
 		*/
 		bool isValid() const { return program != 0; }
+
+		/**
+		*	テクスチャのバインドをします
+		*	
+		*	@param unit	適用するテクスチャのユニット番号
+		*/
+		void BindTexture(GLuint unit, GLuint texture, GLuint type);
 
 		/**
 		*	ビュー射影変換行列の設定処理
@@ -68,7 +66,12 @@ namespace Shader {
 
 	private:
 
-		GLuint program;
+		GLint matVPLocation = -1;
+
+		int samperCount = 0;		///< テクスチャサンプラー数
+		GLint samplerLocation = -1;	///< テクスチャサンプラー位置
+
+		GLuint program;				///< プログラムオブジェクトID
 
 	};
 
