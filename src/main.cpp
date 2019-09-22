@@ -70,14 +70,23 @@ int main(){
 		return -1;
 	}
 
+	float aspect = 800.0f / 600.0f;
+	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 500.0f);
+	glm::mat4 matVP = matProj * matView;
+
 	//main loop
 	while (!window.ShouldClose()) {
 
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
 		prog->UseProgram();
 		prog->BindTexture(GL_TEXTURE0, texture->Id(), GL_TEXTURE_2D);
+		prog->SetViewProjectionMatrix(matVP);
 		if (vao.Bind()) {
 
 			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
