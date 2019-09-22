@@ -9,27 +9,7 @@
 #include "GLSystem.h"
 #include "BufferObject.h"
 #include "Shader.h"
-
-static const char* vsCode =
-"#version 410 \n"
-"layout(location=0) in vec3 vPosition;"
-"layout(location=1) in vec2 vTexcoord;"
-"layout(location=2) in vec4 vColor;"
-"layout(location=0) out vec4 outColor;"
-"void main() {"
-"  outColor = vColor;"
-"  gl_Position = vec4(vPosition, 1.0);"
-"}";
-
-/// フラグメントシェーダ.
-static const char* fsCode =
-"#version 410 \n"
-"layout(location=0) in vec4 inColor;"
-"out vec4 fragColor;"
-"void main() {"
-"  fragColor = inColor;"
-"}";
-
+#include "Texture.h"
 
 /**
 *	頂点データ構造体
@@ -51,12 +31,6 @@ Vertex vertices[] = {
 
 GLuint indices[] = {
 	0,1,2,2,3,0
-};
-
-glm::vec4 colormap[] = {
-
-
-
 };
 
 
@@ -86,7 +60,10 @@ int main(){
 		vao.UnBind(true);
 	}
 
-	glGenTextures()
+	TexturePtr texture = Texture::LoadFromFile("res/texture/sampleTex.dds");
+	if (!texture) {
+		return -1;
+	}
 
 	Shader::ProgramPtr prog = Shader::Program::Create("res/shader/Default.vert", "res/shader/Default.frag");
 	if (!prog->isValid()) {
@@ -100,6 +77,7 @@ int main(){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		prog->UseProgram();
+		prog->BindTexture(GL_TEXTURE0, texture->Id(), GL_TEXTURE_2D);
 		if (vao.Bind()) {
 
 			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
