@@ -61,7 +61,7 @@ int main(){
 	}
 
 	TexturePtr texture = Texture::LoadFromFile("res/texture/sampleTex.dds");
-	if (!texture) {
+	if (texture.expired()) {
 		return -1;
 	}
 
@@ -85,7 +85,7 @@ int main(){
 		glCullFace(GL_BACK);
 
 		prog->UseProgram();
-		prog->BindTexture(GL_TEXTURE0, texture->Id(), GL_TEXTURE_2D);
+		prog->BindTexture(GL_TEXTURE0, texture.lock()->Id(), GL_TEXTURE_2D);
 		prog->SetViewProjectionMatrix(matVP);
 		if (vao.Bind()) {
 

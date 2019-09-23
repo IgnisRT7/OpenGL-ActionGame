@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\BufferObject.h" />
+    <ClInclude Include="src\FontRenderer.h" />
     <ClInclude Include="src\GLSystem.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
+    <ClCompile Include="src\FontRenderer.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Shader.cpp" />
