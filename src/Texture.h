@@ -6,11 +6,12 @@
 
 #pragma once
 
-#include <GL/glew.h>
 #include <memory>
+#include <GL/glew.h>
+
 
 class Texture;
-using TexturePtr = std::shared_ptr<Texture>;	///< テクスチャポインタ
+using TexturePtr = std::weak_ptr<Texture>;	///< テクスチャポインタ
 
 /**
 *	テクスチャクラス

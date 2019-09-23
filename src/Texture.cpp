@@ -259,11 +259,11 @@ TexturePtr Texture::Create(int width, int height, GLenum iformat, GLenum format,
 	}
 
 	struct Impl : Texture {};
-	TexturePtr p = std::make_shared<Impl>();
-
+	auto p = std::make_shared<Impl>();
 	p->width = width;
 	p->height = height;
 	glGenTextures(1, &p->texId);
+
 
 	glBindTexture(GL_TEXTURE_2D, p->texId);
 	glTexImage2D(GL_TEXTURE_2D, 0, iformat, width, height, 0, format, type, data);
@@ -334,7 +334,7 @@ TexturePtr Texture::LoadFromFile(const char* filename) {
 		const GLuint texId = LoadDDS(filename, st, buf.data(), &header);
 		if (texId) {
 			struct impl : Texture {};
-			TexturePtr p = std::make_shared<impl>();
+			auto p = std::make_shared<impl>();
 			p->width = header.width;
 			p->height = header.height;
 			p->texId = texId;
