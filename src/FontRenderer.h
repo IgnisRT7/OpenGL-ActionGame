@@ -23,11 +23,13 @@ namespace Font {
 *
 *
 */
+
 	//前方宣言
 	class FontData;
 	using FontDataPtr = std::weak_ptr<FontData>;
 
 	class FontData {
+		friend class Buffer;
 	public:
 
 	private:
@@ -95,6 +97,14 @@ namespace Font {
 	public:
 
 		/**
+		*	初期化処理
+		*
+		*	@param maxChar	描画可能な最大文字数
+		*	@param screenSize	描画する画面のサイズ
+		*/
+		bool Init(size_t maxChar, glm::ivec2 screenSize);
+
+		/**
 		*	バッファをマッピング開始する
 		*/
 		void MapBuffer();
@@ -109,6 +119,11 @@ namespace Font {
 		*/
 		void Draw();
 
+		/**
+		*	文字列書き込み処理
+		*
+		*	@param
+		*/
 		void AddString();
 
 		/**
@@ -122,7 +137,7 @@ namespace Font {
 		BufferObject vbo, ibo;	///< フォントの頂点データ格納場所
 		VertexArrayObject vao;	
 		glm::vec2 reciprocalScreenSize;	///< スクリーンサイズの逆数
-
+		GLsizei vboCapacity;	///< 描画に使用するVBOのキャパシティ
 	};
 
 
