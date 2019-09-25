@@ -10,6 +10,7 @@
 #include "BufferObject.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Font.h"
 
 /**
 *	頂点データ構造体
@@ -36,6 +37,9 @@ GLuint indices[] = {
 
 int main(){
 
+	std::string str = "ifo idos file=\"texture.dds\" ";
+
+
 	GLSystem::Window& window = GLSystem::Window::Instance();
 	if (!window.Init(1000,800,"OpenGLActionGame")) {
 		return -1;
@@ -59,6 +63,8 @@ int main(){
 		vao.VertexAttribPointer(2, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, color)));
 		vao.UnBind(true);
 	}
+
+	auto fontPtr= Font::Buffer::CreateFontFromFile("res/font/Font.fnt");
 
 	TexturePtr texture = Texture::LoadFromFile("res/texture/sampleTex.dds");
 	if (texture.expired()) {
