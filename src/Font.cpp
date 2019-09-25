@@ -1,7 +1,9 @@
 /**
 *	@file FontRenderer.cpp
 */
-#include "FontRenderer.h"
+#include "Font.h"
+#include <fstream>
+#include <sstream>
 
 namespace Font {
 
@@ -13,15 +15,62 @@ namespace Font {
 
 	FontDataPtr Buffer::CreateFontFromFile(const char* filename){
 
-		struct Impl : FontData { Impl() {} ~Impl() {} };
+		struct Impl : FontData {  };
 		auto p = std::make_shared<Impl>();
 
 		if (!p) {
-
-
+			std::cerr << "[Error]: FontBuffer create error!" << std::endl;
 			return {};
 		}
+
+		std::ifstream ifs(filename);
+		if (ifs.fail()) {
+			std::cerr << "[Error]: FontBuffer isvalid pass!" << std::endl;
+			return{};
+		}int i = 0;
 		
+		//1s‚¸‚Â“Ç‚Ýž‚Ý
+		char lineBuf[256];
+		int line = 1;		///< “Ç‚Ýž‚Þs
+		while (ifs.getline(lineBuf, sizeof(char) * 256)) {
+			
+			std::string lineStr(lineBuf);
+
+			if (line == 2) {	//scale x,y	
+
+				size_t findNum = lineStr.find("scaleW");
+				if (findNum != std::string::npos) {
+					auto numstr = lineStr.substr(findNum + 7, 3);
+					p->scale.x = atoi(numstr.c_str());
+				}
+				if (findNum != std::string::npos) {
+					findNum = lineStr.find("scaleH");
+					auto numstr = lineStr.substr(findNum + 7, 3);
+					p->scale.x = atoi(numstr.c_str());
+				}
+			}
+			else if (line == 3) {
+
+				size_t findNum = lineStr.find("file");
+
+				lineStr.
+
+				char tex[128];
+				ret = fscanf(fp.get(), " page id=%*d file=%127s", tex);
+				if (ret < 1) {
+					std::cerr << "ERROR: '" << filename << "'‚Ì“Ç‚Ýž‚Ý‚ÉŽ¸”s(line=" << line <<
+						")" << std::endl;
+					return false;
+				}
+				std::string texName;
+				std::string res("Res/Texture/");
+				texName.assign(tex + 1, tex + strlen(tex) - 1);
+			}
+
+			line++;
+		}
+
+		return p;
 	}
 
 	bool Renderer::Init(size_t maxChar, glm::ivec2 screenSize) {

@@ -51,6 +51,7 @@ namespace Font {
 		std::vector<TexturePtr> fontTexture;	///< フォントに使用するテクスチャ
 		Shader::ProgramPtr progFont = nullptr;	///< フォント描画用シェーダ
 
+		glm::vec2 scale = {};		///<文字スケール
 		
 	};
 
