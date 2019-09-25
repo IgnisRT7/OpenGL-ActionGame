@@ -47,9 +47,9 @@ private:
 
 	GLuint id = 0;
 	std::string name;
-	GLenum target;
-	GLenum usage;
-	GLsizeiptr size;
+	GLenum target = GL_NONE;
+	GLenum usage = GL_NONE;
+	GLsizeiptr size = 0;
 };
 
 class VertexArrayObject {
