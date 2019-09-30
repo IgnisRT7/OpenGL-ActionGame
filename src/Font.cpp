@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 
+#pragma warning(disable: 4996)
+
 namespace Font {
 
 	struct Vertex {
@@ -12,6 +14,12 @@ namespace Font {
 		glm::vec2 texcoord;
 		glm::vec4 color;
 	};
+
+	Buffer& Buffer::Instance(){
+
+		static Buffer buffer;
+		return buffer;
+	}
 
 	FontDataPtr Buffer::CreateFontFromFile(const char* filename){
 
@@ -23,54 +31,109 @@ namespace Font {
 			return {};
 		}
 
-		std::ifstream ifs(filename);
-		if (ifs.fail()) {
-			std::cerr << "[Error]: FontBuffer isvalid pass!" << std::endl;
-			return{};
-		}int i = 0;
+		const std::unique_ptr<FILE, decltype(&fclose)> fp(fopen(filename, "r"), fclose);
+		if (!fp) {
+			std::cerr << "ERROR: '" << filename << "'のオープンに失敗" << std::endl;
+			return {};
+		}
 		
-		//1行ずつ読み込み
-		char lineBuf[256];
-		int line = 1;		///< 読み込む行
-		while (ifs.getline(lineBuf, sizeof(char) * 256)) {
-			
-			std::string lineStr(lineBuf);
+		//info行を読み込む
+		int line = 1;	//読み込む行番号(エラー表示用)
+		int spacing[2];	// 1行目の読み込みチェック用
+		int ret = fscanf(fp.get(), "info face=\"%*[^\"]\" size=%*d bold=%*d italic=%*d charset=%*s unicode=%*d"
+			" stretchH=%*d smooth=%*d aa=%*d padding=%*d,%*d,%*d,%*d spacing=%d,%d%*[^\n]",
+			&spacing[0], &spacing[1]);
+		if (ret < 2) {
+			std::cerr << "[エラー]" << __func__ << ":" <<
+				filename << "の読み込みに失敗(" << line << "行目)\n";
+			return {};
+		}
+		++line;
 
-			if (line == 2) {	//scale x,y	
+		//common行を読み込む
+		float scaleH;
+		ret = fscanf(fp.get(),
+			" common lineHeight=%f base=%f scaleW=%*d scaleH=%f pages=%*d packed=%*d%*[^\n]",
+			&p->lineHeight, &p->base, &scaleH);
+		if (ret < 3) {
+			std::cerr << "[エラー]" << __func__ << ":" << filename << "の読み込みに失敗(" << line << "行目)\n";
+			return {};
+		}
+		++line;
 
-				size_t findNum = lineStr.find("scaleW");
-				if (findNum != std::string::npos) {
-					auto numstr = lineStr.substr(findNum + 7, 3);
-					p->scale.x = atoi(numstr.c_str());
-				}
-				if (findNum != std::string::npos) {
-					findNum = lineStr.find("scaleH");
-					auto numstr = lineStr.substr(findNum + 7, 3);
-					p->scale.x = atoi(numstr.c_str());
-				}
+		//page行を読み込む
+		std::vector<std::string> texNameList;
+		texNameList.reserve(16);
+		for (;;) {
+
+			int id;
+			char tex[256];
+			ret = fscanf(fp.get(), " page id=%d file=\"%255[^\"]\"", &id, tex);
+			if (ret < 2) {
+				break;
 			}
-			else if (line == 3) {
+			tex[sizeof(tex) / sizeof(tex[0]) - 1] = '\0';	//0終端を保証する
+			if (texNameList.size() <= static_cast<size_t>(id)) {
+				texNameList.resize(id + 1);
+			}
+			texNameList[id] = std::string("Res/") + tex;
+			++line;
+		}
+		if (texNameList.empty()) {
+			std::cerr << "[エラー]" << __func__ << ":" << filename << "の読み込みに失敗(" << line << "行目)\n";
+			return {};
+		}
+		
+		//chars行を読み込む
+		int charCount;	//char行の数
+		ret = fscanf(fp.get(), " chars count=%d", &charCount);
+		if (ret < 1) {
+			std::cerr << "[エラー]" << __func__ << ":" << filename << "の読み込みに失敗(" << line << "行目)\n";
+			return {};
+		}
+		line++;
 
-				size_t findNum = lineStr.find("file");
-
-				lineStr.
-
-				char tex[128];
-				ret = fscanf(fp.get(), " page id=%*d file=%127s", tex);
-				if (ret < 1) {
-					std::cerr << "ERROR: '" << filename << "'の読み込みに失敗(line=" << line <<
-						")" << std::endl;
-					return false;
-				}
-				std::string texName;
-				std::string res("Res/Texture/");
-				texName.assign(tex + 1, tex + strlen(tex) - 1);
+		//char行を読み込む
+		p->characterInfoList.clear();
+		p->characterInfoList.resize(65536);	//16bitで表せる範囲を確保
+		for (int i = 0; i < charCount; ++i) {
+			FontData::CharacterInfo info;
+			ret = fscanf(fp.get(),
+				" char id=%d x=%f y=%f width=%f height=%f xoffset=%f yoffset=%f xadvance=%f"
+				" page=%d chnl=%*d",
+				&info.id, &info.uv.x, &info.uv.y, &info.size.x, &info.size.y,
+				&info.offset.x, &info.offset.y, &info.xadvance, &info.page);
+			if (ret < 9) {
+				std::cerr << "[エラー]" << __func__ << ":" << filename << "の読み込みに失敗(" << line << "行目)\n";
+				return {};
 			}
 
-			line++;
+			//フォントファイルは左上が原点なので、openGLの座標系(左下原点)に変換
+			info.uv.y = scaleH - info.uv.y - info.size.y;
+
+			if (info.id < p->characterInfoList.size()) {
+				p->characterInfoList[info.id] = info;
+			}
+			++line;
 		}
 
+		Texture::Image2DPtr texture = Texture::Buffer::Instance().LoadFromFile(p->texFilename.c_str());
+
+		p->textureList.push_back(texture);
+		fontList[filename] = p;
+
 		return p;
+	}
+
+	FontDataPtr Buffer::GetFont(const char* name){
+
+		auto itr = fontList.find(name);
+		if (itr != fontList.end()) {
+			return itr->second;
+		}
+		else {
+			return {};
+		}
 	}
 
 	bool Renderer::Init(size_t maxChar, glm::ivec2 screenSize) {
@@ -84,7 +147,7 @@ namespace Font {
 		vboCapacity = static_cast<GLsizei>(maxChar * 4);
 		vbo.Init("FontVBO", GL_ARRAY_BUFFER, vboCapacity * sizeof(Vertex));
 
-		//インデックスデータの初期化処理
+		//インデックスデータの初期化処理 (1文字 = 4頂点, 左周りに 0 1 2,2 3 0 の2つの三角形)
 		std::vector<GLushort> indexBuf;
 		indexBuf.resize(maxChar * 6);
 		GLushort* p = indexBuf.data();
@@ -104,9 +167,77 @@ namespace Font {
 		}
 		vao.UnBind(true);
 
+		//TODO: スクリーンサイズは可変なため修正用コードを入れる必要がある
 		reciprocalScreenSize = 1 / screenSize;
 
 		return false;
+	}
+
+	void Renderer::MapBuffer(){
+
+		vertices.clear();
+		primitives.clear();
+		vertices.reserve(vbo.Size());
+	}
+
+	void Renderer::UnMapBuffer(){
+
+		vbo.BufferSubData(0, vertices.size() * sizeof(Vertex), vertices.data());
+		vertices.clear();
+		vertices.shrink_to_fit();
+	}
+
+	void Renderer::Draw(){
+
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		vao.Bind();
+		shader->UseProgram();
+
+		//平衡投影、原点は画面の中心
+		const glm::vec2 halfScreenSize = screenSize * 0.5f;
+		const glm::mat4x4 matProj = glm::ortho(
+			-halfScreenSize.x, halfScreenSize.x, -halfScreenSize.y, halfScreenSize.y,
+			1.0f, 1000.0f);
+		const glm::mat4x4 matView = glm::lookAt(glm::vec3(0, 0, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+		shader->SetViewProjectionMatrix(matProj * matView);
+
+		for (const Primitive& primitive : primitives) {
+
+			shader->BindTexture(GL_TEXTURE0, primitive.texture.lock()->Id());
+			glDrawElements(GL_TRIANGLES, primitive.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(primitive.offset));
+		}
+
+		shader->BindTexture(0, 0);
+		vao.UnBind();
+	}
+
+	void Renderer::AddString(const glm::vec2& position, const wchar_t* str, FontDataPtr font){
+
+		if (font.expired()) {
+			std::cout << "[Error]: 無効なフォントデータが設定されているため描画できません" << std::endl;
+			return;
+		}
+
+		glm::vec2 tmpPos = position;
+		auto rawFont = font.lock();
+
+		for (const wchar_t* itr = str; *itr; itr++) {
+
+			FontData::CharacterInfo& info = font.lock()->characterInfoList[*itr];
+
+			//スプライトの座標が画像の中心をしていするが、フォントは左上を指定する
+			//そこで、その差を打ち消すための補正値を計算する
+			const float baseX = info.size.x * 0.5f + info.offset.x;
+			const float baseY = rawFont->base - info.size.y * 0.5f - info.offset.y;
+			glm::vec3 pos = glm::vec3(position + glm::vec2(baseX, baseY), 0);
+
+
+
+		}
+
 	}
 
 }

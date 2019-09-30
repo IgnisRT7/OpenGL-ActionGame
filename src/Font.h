@@ -30,7 +30,16 @@ namespace Font {
 
 	class FontData {
 		friend class Buffer;
+		friend class Renderer;
 	public:
+
+		/**
+		*	フォントが有効か否かを取得
+		*
+		*	@retval true	有効化
+		*	@retval false	無効化
+		*/
+		bool IsValid() const { return valid; }
 
 	private:
 
@@ -39,24 +48,50 @@ namespace Font {
 		FontData(const FontData&) = delete;
 		const FontData& operator=(const FontData&) = delete;
 
+	private:
+
 		/// フォント情報
-		struct FontInfo {
-			int id = -1;		///< 文字コード
-			glm::u16vec2 uv[2];	///< フォント画像のテクスチャ座標
-			glm::vec2 size;		///< フォント画像の表示サイズ
-			glm::vec2 offset;	///< 表示位置をずらす距離
-			float xadvance = 0;	///< カーソルを進める距離
+		struct CharacterInfo {
+			int id = -1;						///< 文字コード
+			int page = 0;						///< 文字が含まれるフォントテクスチャ番号
+			glm::vec2 uv = glm::vec2(0);		///< フォント画像のテクスチャ座標
+			glm::vec2 size = glm::vec2(0);		///< フォント画像の表示サイズ
+			glm::vec2 offset = glm::vec2(0);	///< 表示位置をずらす距離
+			float xadvance = 0;					///< カーソルを進める距離
 		};
 
-		std::vector<TexturePtr> fontTexture;	///< フォントに使用するテクスチャ
-		Shader::ProgramPtr progFont = nullptr;	///< フォント描画用シェーダ
+		std::vector<Texture::Image2DPtr> textureList;	///< フォントに使用するテクスチャ
+		std::vector<CharacterInfo> characterInfoList;	///< 文字情報保存データ
+		Shader::ProgramPtr progFont = nullptr;			///< フォント描画用シェーダ
+		std::string texFilename;						///< フォントテクスチャパス
 
 		glm::vec2 scale = {};		///<文字スケール
+		bool valid = true;			///< フォント有効状態
+
+		float lineHeight = 0;
+		float base = 0;
 		
 	};
 
-	class Buffer {
+	class Character {
 	public:
+
+
+
+	private:
+
+	};
+
+	class Buffer {
+		friend class FontData;
+	public:
+
+		/**
+		*	バッファのインスタンスの取得
+		*
+		*	@return バッファのインスタンス
+		*/
+		static Buffer& Instance();
 
 		/**
 		*	フォントを画像ファイルから作成する
@@ -68,7 +103,7 @@ namespace Font {
 		*
 		*	@return フォントオブジェクト
 		*/
-		static FontDataPtr CreateFontFromFile(const char* filename);
+		FontDataPtr CreateFontFromFile(const char* filename);
 
 		/**
 		*	フォントを取得する
@@ -87,14 +122,22 @@ namespace Font {
 		void DestroyFont(const char* name);
 
 	private:
+
+		Buffer() = default;
+		~Buffer() {}
+		Buffer(const Buffer&) = delete;
+		const Buffer& operator=(const Buffer&) = delete;
 		
-		std::unordered_map<std::string, FontDataPtr> fontList;
-		
-	
+	private:
+
+		std::unordered_map<std::string, std::shared_ptr<FontData> > fontList;	///< フォントデータ格納先
+
 	};
 
 
 	class Renderer {
+		friend class FontData;
+		friend class Buffer;
 	public:
 
 		/**
@@ -125,20 +168,47 @@ namespace Font {
 		*
 		*	@param
 		*/
-		void AddString();
+		void AddString(const glm::vec2& position, const wchar_t* str, FontDataPtr font);
 
 		/**
 		*	ウインドウサイズを変更する
 		*/
 		void WindowSize(glm::ivec2 newSize) { windowSize = newSize; }
 
+		/**
+		*	シェーダプログラムの設定
+		*
+		*	@param program	プログラムオブジェクトのポインタ
+		*/
+		void Shader(Shader::ProgramPtr program) { shader = program; }
+
 	private:
 
-		glm::ivec2 windowSize;	///< 適用されているウインドウサイズ
-		BufferObject vbo, ibo;	///< フォントの頂点データ格納場所
+		glm::ivec2 windowSize;			///< 適用されているウインドウサイズ
+		BufferObject vbo, ibo;			///< フォントの頂点データ格納場所
 		VertexArrayObject vao;	
+		glm::vec2 screenSize;			///< スクリーンサイズ
 		glm::vec2 reciprocalScreenSize;	///< スクリーンサイズの逆数
-		GLsizei vboCapacity;	///< 描画に使用するVBOのキャパシティ
+		GLsizei vboCapacity;			///< 描画に使用するVBOのキャパシティ
+
+		Shader::ProgramPtr shader;		///< 描画に使用されるシェーダ
+
+		// フォント用頂点構造体
+		struct Vertex {
+			glm::vec3 position;
+			glm::vec2 texcoord;
+			glm::vec4 color;
+		};
+
+		// プリミティブ構造体
+		struct Primitive {
+			size_t count;					///< プリミティブ数
+			size_t offset;					///< 頂点データ先頭からのオフセット
+			Texture::Image2DPtr texture;	///< 使用しているテクスチャ
+		};
+
+		std::vector<Vertex> vertices;		///< 頂点バッファへ格納するための前バッファ
+		std::vector<Primitive> primitives;	///< プリミティブバッファ
 	};
 
 
