@@ -29,6 +29,37 @@ public:
 	bool Init(const char* name,GLenum target, GLsizeiptr size, const GLvoid* data = nullptr, GLenum usage = GL_STATIC_DRAW);
 
 	/**
+	*	バッファにデータを転送する
+	*
+	*	@param offset	転送開始位置(バイト単位)
+	*	@param size		転送するバイト数
+	*	@param data		転送するデータへのポインタ
+	*
+	*	@retval true	転送成功
+	*	@retval false	転送失敗
+	*/
+	bool BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data) {
+
+		if (offset + size > this->size) {
+			std::cout << "[Warning]: Insufficient destination buffer size" << std::endl;
+			return false;
+		}
+
+		glBindBuffer(target, id);
+		glBufferSubData(target, offset, size, data);
+		glBindBuffer(target, 0);
+
+		const GLenum error = glGetError();
+
+		if (error != GL_NO_ERROR) {
+			std::cout << "[Error]: Data transfer failed!!" << std::endl;
+			return false;
+		}
+		return true;
+	}
+
+
+	/**
 	*	オブジェクトIDの取得
 	*
 	*	@return オブジェクトID
@@ -42,6 +73,13 @@ public:
 	*	@return false	無効
 	*/
 	bool isValid() const { return id != 0; }
+
+	/**
+	*	バッファサイズの取得
+	*
+	*	@return バッファサイズ
+	*/	
+	size_t Size() const { return static_cast<size_t>(size); }
 
 private:
 

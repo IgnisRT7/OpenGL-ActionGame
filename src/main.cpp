@@ -37,9 +37,6 @@ GLuint indices[] = {
 
 int main(){
 
-	std::string str = "ifo idos file=\"texture.dds\" ";
-
-
 	GLSystem::Window& window = GLSystem::Window::Instance();
 	if (!window.Init(1000,800,"OpenGLActionGame")) {
 		return -1;
@@ -64,9 +61,12 @@ int main(){
 		vao.UnBind(true);
 	}
 
-	auto fontPtr= Font::Buffer::CreateFontFromFile("res/font/Font.fnt");
+	auto fontPtr= Font::Buffer::Instance().CreateFontFromFile("res/font/Font.fnt");
+	if (!fontPtr.lock()->IsValid()) {
+		return -1;
+	}
 
-	TexturePtr texture = Texture::LoadFromFile("res/texture/sampleTex.dds");
+	Texture::Image2DPtr texture = Texture::Buffer::Instance().LoadFromFile("res/texture/sampleTex.dds");
 	if (texture.expired()) {
 		return -1;
 	}
@@ -77,9 +77,10 @@ int main(){
 	}
 
 	float aspect = 800.0f / 600.0f;
-	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 500.0f);
 	glm::mat4 matVP = matProj * matView;
+
 
 	//main loop
 	while (!window.ShouldClose()) {
