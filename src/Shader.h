@@ -48,14 +48,14 @@ namespace Shader {
 		*	
 		*	@param unit	適用するテクスチャのユニット番号
 		*/
-		void BindTexture(GLuint unit, GLuint texture, GLuint type);
+		void BindTexture(GLuint unit, GLuint texture, GLuint type = GL_TEXTURE_2D);
 
 		/**
 		*	ビュー射影変換行列の設定処理
 		*
 		*	@param matVP	ビュー射影変換行列
 		*/
-		void SetViewProjectionMatrix(glm::mat4& matVP);
+		void SetViewProjectionMatrix(const glm::mat4& matVP);
 
 	private:
 

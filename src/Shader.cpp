@@ -167,7 +167,7 @@ namespace Shader {
 		}
 	}
 
-	void Program::SetViewProjectionMatrix(glm::mat4& matVP){
+	void Program::SetViewProjectionMatrix(const glm::mat4& matVP){
 		
 		if (matVPLocation >= 0) {
 
