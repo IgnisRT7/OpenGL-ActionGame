@@ -22,7 +22,7 @@ namespace Font {
 	}
 
 	FontDataPtr Buffer::CreateFontFromFile(const char* filename){
-
+		
 		struct Impl : FontData {  };
 		auto p = std::make_shared<Impl>();
 
@@ -76,7 +76,7 @@ namespace Font {
 			if (texNameList.size() <= static_cast<size_t>(id)) {
 				texNameList.resize(id + 1);
 			}
-			texNameList[id] = std::string("Res/") + tex;
+			texNameList[id] = std::string("res/font/") + tex;
 			++line;
 		}
 		if (texNameList.empty()) {
@@ -111,15 +111,16 @@ namespace Font {
 			//フォントファイルは左上が原点なので、openGLの座標系(左下原点)に変換
 			info.uv.y = scaleH - info.uv.y - info.size.y;
 
-			if (info.id < p->characterInfoList.size()) {
+			if (static_cast<size_t>(info.id) < p->characterInfoList.size()) {
 				p->characterInfoList[info.id] = info;
 			}
 			++line;
 		}
 
-		Texture::Image2DPtr texture = Texture::Buffer::Instance().LoadFromFile(p->texFilename.c_str());
+		for (auto& texName : texNameList) {
+			p->textureList.push_back(Texture::Buffer::Instance().LoadFromFile(texName.c_str()));
+		}
 
-		p->textureList.push_back(texture);
 		fontList[filename] = p;
 
 		return p;
@@ -170,7 +171,7 @@ namespace Font {
 		//TODO: スクリーンサイズは可変なため修正用コードを入れる必要がある
 		reciprocalScreenSize = 1 / screenSize;
 
-		return false;
+		return true;
 	}
 
 	void Renderer::MapBuffer(){
@@ -214,7 +215,7 @@ namespace Font {
 		vao.UnBind();
 	}
 
-	void Renderer::AddString(const glm::vec2& position, const wchar_t* str, FontDataPtr font){
+	void Renderer::AddString(const glm::vec3& position, const wchar_t* str, FontDataPtr font){
 
 		if (font.expired()) {
 			std::cout << "[Error]: 無効なフォントデータが設定されているため描画できません" << std::endl;
@@ -223,21 +224,88 @@ namespace Font {
 
 		glm::vec2 tmpPos = position;
 		auto rawFont = font.lock();
+		shader = rawFont->progFont;
 
 		for (const wchar_t* itr = str; *itr; itr++) {
 
-			FontData::CharacterInfo& info = font.lock()->characterInfoList[*itr];
+			auto& info = rawFont->characterInfoList[*itr];
 
 			//スプライトの座標が画像の中心をしていするが、フォントは左上を指定する
 			//そこで、その差を打ち消すための補正値を計算する
-			const float baseX = info.size.x * 0.5f + info.offset.x;
-			const float baseY = rawFont->base - info.size.y * 0.5f - info.offset.y;
-			glm::vec3 pos = glm::vec3(position + glm::vec2(baseX, baseY), 0);
+			//const float baseX = info.size.x * 0.5f + info.offset.x;
+			//const float baseY = rawFont->base - info.size.y * 0.5f - info.offset.y;
+			//glm::vec3 pos = glm::vec3(position + glm::vec2(baseX, baseY), 0);
 
+			AddVertices(info, rawFont->textureList[info.page], position);
 
+			tmpPos.x += info.xadvance;
 
 		}
+	}
 
+	void Renderer::AddVertices(FontData::CharacterInfo& charaData, Texture::Image2DPtr texture, glm::vec3 position){
+
+		struct Rect {
+			glm::vec2 origin;
+			glm::vec2 size;
+		};
+
+		if (texture.expired()) {
+			return;
+		}
+		auto sTexture = texture.lock();
+
+		glm::vec2 texSize = glm::vec2(sTexture->Width(), sTexture->Height());
+		glm::vec2 recpTexSize = glm::vec2(1) / texSize;
+
+		//0 - 1 の範囲に収める
+		Rect rect = { charaData.uv,charaData.size };
+		rect.origin *= recpTexSize;
+		rect.size *= recpTexSize;
+		
+		glm::vec2 halfSize = charaData.size * 0.5f;
+		glm::mat4  matTRS = glm::translate(glm::identity<glm::mat4>(), position);
+
+		Vertex vertex[4];
+
+		//
+		// 3- -2
+		// |  /| 
+		// |/" |
+		// 0- -1
+
+		vertex[0].position = matTRS * glm::vec4(-halfSize.x, -halfSize.y, 0, 1);
+		vertex[1].position = matTRS * glm::vec4( halfSize.x, -halfSize.y, 0, 1);
+		vertex[2].position = matTRS * glm::vec4( halfSize.x,  halfSize.y, 0, 1);
+		vertex[3].position = matTRS * glm::vec4(-halfSize.x,  halfSize.y, 0, 1);
+
+		vertex[0].texcoord = glm::vec2(rect.origin.x, rect.origin.y + rect.size.y);
+		vertex[1].texcoord = glm::vec2(rect.origin + rect.size);
+		vertex[2].texcoord = glm::vec2(rect.origin.x + rect.size.x, rect.origin.y);
+		vertex[3].texcoord = glm::vec2(rect.origin);
+
+		vertex[0].color = glm::vec4(1);
+		vertex[1].color = glm::vec4(1);
+		vertex[2].color = glm::vec4(1);
+		vertex[3].color = glm::vec4(1);
+
+		vertices.insert(vertices.end(), vertex, vertex + 4);
+		
+		//プリミティブの追加
+
+		if (primitives.empty()) {
+			primitives.push_back({ 6,0,texture });
+		}
+		else {
+
+			auto& primitive = primitives.back();
+			if (primitive.texture.lock() == texture.lock()) {
+				primitive.count += 6;
+			}
+			else {
+				primitives.push_back({ 6,primitive.offset + primitive.count * sizeof(GLushort),texture });
+			}
+		}
 	}
 
 }
