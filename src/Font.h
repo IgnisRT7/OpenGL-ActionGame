@@ -41,6 +41,13 @@ namespace Font {
 		*/
 		bool IsValid() const { return valid; }
 
+		/**
+		*	描画に使用するシェーダの設定
+		*
+		*	@param shader	適用するシェーダ
+		*/
+		void Shader(Shader::ProgramPtr shader) { progFont = shader; }
+
 	private:
 
 		FontData() = default;
@@ -78,8 +85,12 @@ namespace Font {
 
 
 
+
 	private:
 
+		std::string str;	///< 描画用文字列
+		glm::vec3 pos;
+		glm::vec2 k;
 	};
 
 	class Buffer {
@@ -140,6 +151,11 @@ namespace Font {
 		friend class Buffer;
 	public:
 
+		Renderer() = default;
+		~Renderer() {}
+		Renderer(const Renderer&) = delete;
+		const Renderer& operator=(const Renderer&) = delete;
+
 		/**
 		*	初期化処理
 		*
@@ -168,7 +184,7 @@ namespace Font {
 		*
 		*	@param
 		*/
-		void AddString(const glm::vec2& position, const wchar_t* str, FontDataPtr font);
+		void AddString(const glm::vec3& position, const wchar_t* str, FontDataPtr font);
 
 		/**
 		*	ウインドウサイズを変更する
@@ -181,6 +197,9 @@ namespace Font {
 		*	@param program	プログラムオブジェクトのポインタ
 		*/
 		void Shader(Shader::ProgramPtr program) { shader = program; }
+
+	private:
+		void AddVertices(FontData::CharacterInfo& charaData,Texture::Image2DPtr texture,glm::vec3 position);
 
 	private:
 
@@ -205,6 +224,10 @@ namespace Font {
 			size_t count;					///< プリミティブ数
 			size_t offset;					///< 頂点データ先頭からのオフセット
 			Texture::Image2DPtr texture;	///< 使用しているテクスチャ
+		};
+
+		struct CharInfo {
+			
 		};
 
 		std::vector<Vertex> vertices;		///< 頂点バッファへ格納するための前バッファ
