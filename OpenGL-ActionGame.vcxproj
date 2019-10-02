@@ -169,6 +169,8 @@
     <None Include="packages.config" />
     <None Include="res\shader\Default.frag" />
     <None Include="res\shader\Default.vert" />
+    <None Include="res\shader\FontRenderer.frag" />
+    <None Include="res\shader\FontRenderer.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
