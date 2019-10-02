@@ -6,9 +6,7 @@
 
 BufferObject::~BufferObject(){
 
-	if (id) {
-		glDeleteBuffers(1, &id);
-	}
+	Destroy();
 }
 
 bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
@@ -41,6 +39,33 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	std::cout << "completed." << std::endl;
 
 	return true;
+}
+
+bool BufferObject::BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data){
+
+	if (offset + size > this->size) {
+		std::cout << "[Warning]: Insufficient destination buffer size" << std::endl;
+		return false;
+	}
+
+	glBindBuffer(target, id);
+	glBufferSubData(target, offset, size, data);
+	glBindBuffer(target, 0);
+
+	GLenum error = glGetError();
+
+	if (error != GL_NO_ERROR) {
+		std::cout << "[Error]: Data transfer failed!!" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+void BufferObject::Destroy(){
+
+	if (id) {
+		glDeleteBuffers(1, &id);
+	}
 }
 
 VertexArrayObject::~VertexArrayObject(){

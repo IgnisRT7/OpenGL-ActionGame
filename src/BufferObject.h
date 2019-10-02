@@ -38,26 +38,12 @@ public:
 	*	@retval true	転送成功
 	*	@retval false	転送失敗
 	*/
-	bool BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data) {
+	bool BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data);
 
-		if (offset + size > this->size) {
-			std::cout << "[Warning]: Insufficient destination buffer size" << std::endl;
-			return false;
-		}
-
-		glBindBuffer(target, id);
-		glBufferSubData(target, offset, size, data);
-		glBindBuffer(target, 0);
-
-		const GLenum error = glGetError();
-
-		if (error != GL_NO_ERROR) {
-			std::cout << "[Error]: Data transfer failed!!" << std::endl;
-			return false;
-		}
-		return true;
-	}
-
+	/**
+	*	バッファオブジェクトの破棄
+	*/
+	void Destroy();
 
 	/**
 	*	オブジェクトIDの取得
