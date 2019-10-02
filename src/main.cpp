@@ -60,11 +60,17 @@ int main(){
 		vao.VertexAttribPointer(2, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, color)));
 		vao.UnBind(true);
 	}
+	else {
+		return -1;
+	}
 
 	auto fontPtr= Font::Buffer::Instance().CreateFontFromFile("res/font/Font.fnt");
 	if (!fontPtr.lock()->IsValid()) {
 		return -1;
 	}
+	
+	Font::Renderer fontRenderer;
+	fontRenderer.Init(1000, glm::ivec2(1000, 800));
 
 	Texture::Image2DPtr texture = Texture::Buffer::Instance().LoadFromFile("res/texture/sampleTex.dds");
 	if (texture.expired()) {
@@ -72,21 +78,32 @@ int main(){
 	}
 
 	Shader::ProgramPtr prog = Shader::Program::Create("res/shader/Default.vert", "res/shader/Default.frag");
-	if (!prog->isValid()) {
+	Shader::ProgramPtr fontProg = Shader::Program::Create("res/shader/FontRenderer.vert", "res/shader/FontRenderer.frag");
+	if (!prog->isValid() || !fontProg->isValid()) {
 		return -1;
 	}
+
+	fontPtr.lock()->Shader(fontProg);
 
 	float aspect = 800.0f / 600.0f;
 	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 500.0f);
 	glm::mat4 matVP = matProj * matView;
 
+	auto error = glGetError();
 
 	//main loop
 	while (!window.ShouldClose()) {
 
 		glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+		fontRenderer.MapBuffer();
+
+		fontRenderer.AddString(glm::vec3(0), L"test!!", fontPtr);
+
+		fontRenderer.UnMapBuffer();
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -103,6 +120,9 @@ int main(){
 
 			vao.UnBind();
 		}
+
+		fontRenderer.Draw();
+	
 
 		window.SwapBuffers();
 	}
