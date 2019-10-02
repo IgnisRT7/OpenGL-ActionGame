@@ -14,5 +14,5 @@ void main() {
 	outTexCoord = vTexcoord;
 	outColor = vColor;
 
-  gl_Position = matVP * vec4(vPosition, 1.0);
+	gl_Position = matVP * vec4(vPosition, 1.0);
 }
