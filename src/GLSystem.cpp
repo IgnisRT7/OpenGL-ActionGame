@@ -14,6 +14,9 @@ namespace GLSystem {
 
 	bool Window::Init(int width, int height, const char* title){
 
+		this->width = width;
+		this->height = height;
+
 		std::cout << "[info]: GLSystem is Initializing...";
 
 		if (isInitialized) {

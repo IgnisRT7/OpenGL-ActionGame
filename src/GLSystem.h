@@ -29,6 +29,20 @@ namespace GLSystem {
 		static Window& Instance();
 
 		/**
+		*	画面の横幅を取得
+		*
+		*	@return 画面の横幅
+		*/
+		int Width() const { return width }
+
+		/**
+		*	画面の縦幅を取得
+		*
+		*	@return 画面縦幅
+		*/
+		int Height() const { return height; }
+
+		/**
 		*	初期化処理
 		*
 		*	@param width	ウインドウの横幅
@@ -69,6 +83,8 @@ namespace GLSystem {
 
 		GLFWwindow* window = nullptr;	///< ウインドウ管理ハンドル
 		bool isInitialized;				///< 初期化フラグ
+		int height;						///< ウインドウの縦幅
+		int width;						///< ウインドウの横幅
 	};
 
 }
