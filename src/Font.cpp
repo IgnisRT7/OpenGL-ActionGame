@@ -195,7 +195,8 @@ namespace Font {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		vao.Bind();
-		shader->UseProgram();
+		auto progShader = shader.lock();
+		progShader->UseProgram();
 
 		//•½t“Š‰eAŒ´“_‚Í‰æ–Ê‚Ì’†S
 		const glm::vec2 halfScreenSize = screenSize * 0.5f;
@@ -203,15 +204,15 @@ namespace Font {
 			-halfScreenSize.x, halfScreenSize.x, -halfScreenSize.y, halfScreenSize.y,
 			1.0f, 1000.0f);
 		const glm::mat4x4 matView = glm::lookAt(glm::vec3(0, 0, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-		shader->SetViewProjectionMatrix(matProj * matView);
+		progShader->SetViewProjectionMatrix(matProj * matView);
 
 		for (const Primitive& primitive : primitives) {
 
-			shader->BindTexture(GL_TEXTURE0, primitive.texture.lock()->Id());
+			progShader->BindTexture(GL_TEXTURE0, primitive.texture.lock()->Id());
 			glDrawElements(GL_TRIANGLES, primitive.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(primitive.offset));
 		}
 
-		shader->BindTexture(0, 0);
+		progShader->BindTexture(0, 0);
 		vao.UnBind();
 	}
 

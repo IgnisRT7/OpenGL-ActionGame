@@ -69,7 +69,7 @@ namespace Font {
 
 		std::vector<Texture::Image2DPtr> textureList;	///< フォントに使用するテクスチャ
 		std::vector<CharacterInfo> characterInfoList;	///< 文字情報保存データ
-		Shader::ProgramPtr progFont = nullptr;			///< フォント描画用シェーダ
+		Shader::ProgramPtr progFont;			///< フォント描画用シェーダ
 		std::string texFilename;						///< フォントテクスチャパス
 
 		glm::vec2 scale = {};		///<文字スケール

@@ -4,6 +4,7 @@
 #include "Shader.h"
 
 #include <iostream>
+#include <string>
 
 namespace Shader {
 
@@ -18,21 +19,30 @@ namespace Shader {
 	*/
 	bool ReadFromFile(const char* filename, std::vector<char>& buf) {
 
-		struct stat st;
-		if (stat(filename, &st)) {
-			return false;
-		}
+		std::cout << "Reading '" << filename << "' shader...";
 
-		FILE* fp = NULL;
-		fopen_s(&fp, filename, "rb");
-		if (!fp) {
-			return false;
-		}
+		try {
 
-		buf.resize(st.st_size + 1);
-		const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
-		fclose(fp);
-		if (readSize != st.st_size) {
+			struct stat st;
+			if (stat(filename, &st)) {
+				throw(" error. Invalid file format!! \n");
+			}
+
+			FILE* fp = NULL;
+			fopen_s(&fp, filename, "rb");
+			if (!fp) {
+				throw(" error. Could not open file!! \n");
+			}
+
+			buf.resize(st.st_size + 1);
+			const size_t readSize = fread(buf.data(), 1, st.st_size, fp);
+			fclose(fp);
+			if (readSize != st.st_size) {
+				throw(" error. Could not read all data!! \n");
+			}
+		}
+		catch (const char* errorStr) {
+			std::cout << errorStr << std::endl;
 			return false;
 		}
 
@@ -115,13 +125,57 @@ namespace Shader {
 		return program;
 	}
 
-	ProgramPtr Shader::Program::Create(const char* vsPass, const char* fsPass) {
+	void Program::BindTexture(GLuint unit, GLuint texture, GLuint type){
+
+		if (unit >= GL_TEXTURE0 && static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
+
+			glActiveTexture(unit);
+			glBindTexture(type, texture);
+		}
+	}
+
+	void Program::SetViewProjectionMatrix(const glm::mat4& matVP){
+		
+		if (matVPLocation >= 0) {
+
+			glUniformMatrix4fv(matVPLocation, 1, GL_FLOAT, &matVP[0][0]);
+		}
+
+	}
+
+	Program::~Program() {
+
+		if (program) {
+			glDeleteProgram(program);
+		}
+	}
+
+	bool Program::UseProgram() const{
+
+		glUseProgram(program);
+		return glGetError == GL_NO_ERROR;
+	}
+
+
+	Buffer& Buffer::Instance() {
+
+		static Buffer instance;
+		return instance;
+	}
+
+	Buffer::~Buffer() {
+
+		shaderList.clear();
+		std::cout << "[Info]: ShaderResource is Cleard!" << std::endl;
+	}
+
+	ProgramPtr Buffer::Create(const char* vsPass, const char* fsPass, const char* shaderName){
 
 		std::cout << "[Info]: Creating Program...";
 
 		struct Impl : Program { Impl() {} ~Impl() {} };
-		ProgramPtr p = std::make_shared<Impl>();
-		
+		ProgramPtr_s p = std::make_shared<Impl>();
+
 		if (!p) {
 			std::cout << "\n[Error]: Could not allocate memory!!" << std::endl;
 			return {};
@@ -154,39 +208,22 @@ namespace Shader {
 
 		//matVP用ロケーション位置を取得する
 		p->matVPLocation = glGetUniformLocation(p->program, "matVP");
-		
+
+		auto& inst = Buffer::Instance();
+
+		//シェーダ名重複防止処理
+		int counter = 0;
+		std::string newShaderName;
+		do {
+
+			newShaderName = counter == 0 ? shaderName : shaderName + std::to_string(counter);
+			counter++;
+
+		} while (inst.shaderList.find(newShaderName) != inst.shaderList.end());
+
+		inst.shaderList[newShaderName] = p;
+
 		return p;
-	}
-
-	void Program::BindTexture(GLuint unit, GLuint texture, GLuint type){
-
-		if (unit >= GL_TEXTURE0 && static_cast<GLenum>(GL_TEXTURE0 + samperCount)) {
-
-			glActiveTexture(unit);
-			glBindTexture(type, texture);
-		}
-	}
-
-	void Program::SetViewProjectionMatrix(const glm::mat4& matVP){
-		
-		if (matVPLocation >= 0) {
-
-			glUniformMatrix4fv(matVPLocation, 1, GL_FLOAT, &matVP[0][0]);
-		}
-
-	}
-
-	Program::~Program() {
-
-		if (program) {
-			glDeleteProgram(program);
-		}
-	}
-
-	bool Program::UseProgram() const{
-
-		glUseProgram(program);
-		return glGetError == GL_NO_ERROR;
 	}
 
 }

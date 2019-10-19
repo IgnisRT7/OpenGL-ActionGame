@@ -11,12 +11,14 @@ namespace Shader {
 
 	//前方宣言
 	class Program;
-	using ProgramPtr = std::shared_ptr<Program>;
+	using ProgramPtr = std::weak_ptr<Program>;
+	using ProgramPtr_s = std::shared_ptr<Program>;
 
 	/**
 	*	プログラムオブジェクトの管理クラス
 	*/
 	class Program {
+		friend class Buffer;
 	public:
 
 		/**
@@ -38,14 +40,14 @@ namespace Shader {
 		/**
 		*	このプログラムオブジェクトが有効化どうか調べる
 		*
-		*	@retval	true	有効	
+		*	@retval	true	有効
 		*	@retval false	無効
 		*/
 		bool isValid() const { return program != 0; }
 
 		/**
 		*	テクスチャのバインドをします
-		*	
+		*
 		*	@param unit	適用するテクスチャのユニット番号
 		*/
 		void BindTexture(GLuint unit, GLuint texture, GLuint type = GL_TEXTURE_2D);
@@ -71,11 +73,9 @@ namespace Shader {
 		int samperCount = 0;		///< テクスチャサンプラー数
 		GLint samplerLocation = -1;	///< テクスチャサンプラー位置
 
-		GLuint program;				///< プログラムオブジェクトID
+		GLuint program = -1;		///< プログラムオブジェクトID
 
 	};
-
-
 
 	/**
 	*	プログラムオブジェクトのバッファクラス
@@ -84,17 +84,31 @@ namespace Shader {
 	public:
 
 		/**
+		*	バッファインスタンスの取得
+		*
+		*	@return シェーダバッファインスタンス
+		*/
+		static Buffer& Instance();
+
+		/**
 		*	プログラム作成処理
 		*
-		*	@param vsPass
-		*	@param fsPass
+		*	@param vsPass	頂点シェーダのファイル名
+		*	@param fsPass	頂点シェーダのファイル名
+		*	@param shaderName	シェーダ名
 		*/
-		static bool Create(const char* vsPass, const char* fsPass);
+		static ProgramPtr Create(const char* vsPass, const char* fsPass, const char* shaderName = "no name");
 
 
 	private:
 
-		std::unordered_map<std::string, ProgramPtr> shaderList;
+		Buffer() = default;
+		~Buffer();
+		Buffer(const Buffer&) = delete;
+		const Buffer& operator=(const Buffer&) = delete;
+
+		using ShaderMapType = std::unordered_map<std::string, ProgramPtr_s>;
+		ShaderMapType shaderList;	///< シェーダのリスト
 	};
 
 
