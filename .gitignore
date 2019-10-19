@@ -259,3 +259,11 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/src/json11/test.cpp
+/src/json11/README.md
+/src/json11/Makefile
+/src/json11/LICENSE.txt
+/src/json11/json11.pc.in
+/src/json11/json11.hpp
+/src/json11/json11.cpp
+/src/json11/CMakeLists.txt

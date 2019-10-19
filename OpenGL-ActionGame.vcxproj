@@ -162,6 +162,7 @@
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\GLSystem.h" />
+    <ClInclude Include="src\OffscreenBuffer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
   </ItemGroup>
@@ -169,6 +170,8 @@
     <None Include="packages.config" />
     <None Include="res\shader\Default.frag" />
     <None Include="res\shader\Default.vert" />
+    <None Include="res\shader\FinalRender.frag" />
+    <None Include="res\shader\FinalRender.vert" />
     <None Include="res\shader\FontRenderer.frag" />
     <None Include="res\shader\FontRenderer.vert" />
   </ItemGroup>
@@ -177,6 +180,7 @@
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\OffscreenBuffer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
