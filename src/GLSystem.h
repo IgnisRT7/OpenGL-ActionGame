@@ -33,7 +33,7 @@ namespace GLSystem {
 		*
 		*	@return ‰æ–Ê‚Ì‰¡•
 		*/
-		int Width() const { return width }
+		int Width() const { return width; }
 
 		/**
 		*	‰æ–Ê‚Ìc•‚ğæ“¾
