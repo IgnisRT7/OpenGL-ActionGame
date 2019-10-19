@@ -300,7 +300,7 @@ namespace Texture {
 				p->texId = texId;
 				p->texName = filename;
 
-				this->imageList[filename] = p;
+				Buffer::Instance().imageList[filename] = p;
 				return p;
 			}
 		}
@@ -333,7 +333,7 @@ namespace Texture {
 		}
 		
 		p->Name(filename);
-		this->imageList[filename] = p;
+		Buffer::Instance().imageList[filename] = p;
 
 		return p;
 	}

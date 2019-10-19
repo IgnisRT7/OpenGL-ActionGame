@@ -14,6 +14,7 @@ namespace Texture {
 
 	class Image2D;
 	using Image2DPtr = std::weak_ptr<Image2D>;	///< テクスチャポインタ
+	using Image2DPtr_s = std::shared_ptr<Image2D>;	///< テクスチャポインタ(shared用)
 
 	/**
 	*	テクスチャクラス
@@ -99,7 +100,21 @@ namespace Texture {
 		*	@return 作成に成功した場合はテクスチャポインタを返す
 		*			失敗した場合はnullptrを返す
 		*/
-		Image2DPtr LoadFromFile(const char*);
+		static Image2DPtr LoadFromFile(const char*);
+
+		/**
+		*	2Dテクスチャを作成する
+		*
+		*	@param width	テクスチャの幅(ピクセル数)
+		*	@param height	テクスチャの高さ(ピクセル数)
+		*	@param iformat	テクスチャのデータ形式
+		*	@param format	アクセスする要素
+		*	@param data		テクスチャのデータへのポインタ
+		*
+		*	@return 作成に成功した場合はテクスチャポインタを返す
+		*			失敗した場合はnullptrを返す
+		*/
+		static std::shared_ptr<Image2D> Create(int width, int height, GLenum iformat, GLenum format, const void* data);
 
 		/**
 		*	バッファ内から指定したテクスチャ王ジェクトを取得します
@@ -118,23 +133,10 @@ namespace Texture {
 		Buffer(const Buffer&) = delete;
 		const Buffer& operator=(const Buffer&) = delete;
 
-		/**
-		*	2Dテクスチャを作成する
-		*
-		*	@param width	テクスチャの幅(ピクセル数)
-		*	@param height	テクスチャの高さ(ピクセル数)
-		*	@param iformat	テクスチャのデータ形式
-		*	@param format	アクセスする要素
-		*	@param data		テクスチャのデータへのポインタ
-		*
-		*	@return 作成に成功した場合はテクスチャポインタを返す
-		*			失敗した場合はnullptrを返す
-		*/
-		std::shared_ptr<Image2D> Create(int width, int height, GLenum iformat, GLenum format, const void* data);
-
 	private:
 
-		using ImageMapType = std::unordered_map<std::string, std::shared_ptr<Image2D> >;	///< テクスチャ保存用キータイプ
+		using ImageMapType = std::unordered_map<std::string, Image2DPtr_s >;	///< テクスチャ保存用キータイプ
+		
 		
 		ImageMapType imageList;	///< テクスチャリスト
 
