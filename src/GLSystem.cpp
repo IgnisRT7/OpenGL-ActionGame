@@ -19,28 +19,34 @@ namespace GLSystem {
 
 		std::cout << "[info]: GLSystem is Initializing...";
 
-		if (isInitialized) {
-			std::cout << "\n[warning]: system is already initialized!!" << std::endl;
+		try {
+
+			if (isInitialized) {
+				std::cout << "\n[warning]: system is already initialized!!" << std::endl;
+				return true;
+			}
+
+			if (!glfwInit()) {
+				throw("GLFW initialization faild!!");
+			}
+			glfwInitialized = true;
+
+			window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+
+			if (!window) {
+				throw("GLFW window creation failed!!");
+			}
+
+			glfwMakeContextCurrent(window);
+
+			if (glewInit()) {
+				throw("GLEW initialization failed!!");
+			}
 		}
+		catch (const char* errStr) {
 
-		if (!glfwInit()) {
-			std::cout << "\n[error]: " << __FILE__ << "->" << __func__ << "glfwInit error!!" << std::endl;
-			return false;
-		}
-
-
-		window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-
-		if (!window) {
-			std::cout << "\n[error]: " << __FILE__ << "->" << __func__ << "glfwCreateWindow error!!" << std::endl;
-			glfwTerminate();
-			return false;
-		}
-
-		glfwMakeContextCurrent(window);
-
-		if (glewInit()) {
-			std::cout << "\n[erorr]: " << __FILE__ << "->" << __func__ << "glewInit error!!" << std::endl;
+			std::cout << "[Error]: GLSystem initialization Faild" << std::endl;
+			std::cout << "         " << errStr;
 			return false;
 		}
 
@@ -61,6 +67,11 @@ namespace GLSystem {
 	}
 
 	Window::~Window(){
+
+		std::cout << "[Info]: Fainalized GLsystem" << std::endl;
+		if (glfwInitialized) {
+			glfwTerminate();
+		}
 	}
 
 

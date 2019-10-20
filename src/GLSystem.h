@@ -82,9 +82,11 @@ namespace GLSystem {
 		const Window& operator=(const Window&) = delete;
 
 		GLFWwindow* window = nullptr;	///< ウインドウ管理ハンドル
-		bool isInitialized;				///< 初期化フラグ
-		int height;						///< ウインドウの縦幅
-		int width;						///< ウインドウの横幅
+		bool isInitialized = false;		///< 初期化済みフラグ
+		bool glfwInitialized = false;	///< GLFW初期化済みフラグ
+
+		int height = 0;					///< ウインドウの縦幅
+		int width = 0;					///< ウインドウの横幅
 	};
 
 }
