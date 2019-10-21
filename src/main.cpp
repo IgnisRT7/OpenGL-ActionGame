@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
+#include "GameEngine.h"
 #include "GLSystem.h"
 #include "BufferObject.h"
 #include "Shader.h"
@@ -15,7 +16,7 @@
 
 /**
 *	頂点データ構造体
-*/
+*
 struct Vertex {
 
 	glm::vec3 position;	///< 頂点座標
@@ -23,21 +24,54 @@ struct Vertex {
 	glm::vec4 color;	///< 頂点色
 };
 
+static int GBufferCount = 4;
+
 Vertex vertices[] = {
 
+	//全面描画用データ
 	{ { -0.5, -0.5, 0 },{ 0, 1 },{ 1, 0, 0, 1} },
 	{ { 0.5, -0.5, 0 },{ 1, 1 },{ 0, 1, 0, 1} },
 	{ { 0.5, 0.5, 0 },{ 1, 0 },{ 0, 0, 1, 1} },
 	{ { -0.5, 0.5, 0 },{ 0, 0 },{ 0.8, 0.8, 0.8, 1} },
+	
+	//オフスクリーンバッファ同時描画用データ(メイン)
+	{ { -1.0, -1.0, 0 }, { 0, 1 }, { 1, 1, 1, 1 } },
+	{ {  0.5, -1.0, 0 }, { 1, 1 }, { 1, 1, 1, 1 } },
+	{ {  0.5,  0.5, 0 }, { 1, 0 }, { 1, 1, 1, 1 } },
+	{ { -1.0,  0.5, 0 }, { 0, 0 }, { 1, 1, 1, 1 } },
+
+	//オフスクリーンバッファ同時描画用データ(サブ)
+	{ { -1.0, -1.0, 0 }, { 0, 1 }, { 1, 1, 1, 1 } },
+	{ { -0.5, -1.0, 0 }, { 1, 1 }, { 1, 1, 1, 1 } },
+	{ { -0.5, -0.5, 0 }, { 1, 0 }, { 1, 1, 1, 1 } },
+	{ { -1.0, -0.5, 0 }, { 0, 0 }, { 1, 1, 1, 1 } },
+
 };
 
 GLuint indices[] = {
-	0,1,2,2,3,0
-};
+
+	//全面描画用データ
+	0,1,2,2,3,0,
+
+	4,5,6,6,7,4,
+
+	8,9,10,10,11,8,
+};*/
 
 
 int main(){
 
+	GameEngine& engine = GameEngine::Instance();;
+
+	if (engine.Init(glm::vec2(2048, 1060), "title")){
+		return -1;
+	}
+
+	engine.Run();
+
+	return -1;
+
+	/*
 	GLSystem::Window& window = GLSystem::Window::Instance();
 	if (!window.Init(1000,800,"OpenGLActionGame")) {
 		return -1;
@@ -97,6 +131,7 @@ int main(){
 	err = glGetError();
 
 	//fontPtr.lock()->Shader(fontProg);
+	
 
 	float aspect = 800.0f / 600.0f;
 	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -123,7 +158,6 @@ int main(){
 		prog_s->SetViewProjectionMatrix(matVP);
 		if (vao.Bind()) {
 
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
 			glDrawElements(
 				GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
 				GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
@@ -139,7 +173,6 @@ int main(){
 		progBack_s->BindTexture(GL_TEXTURE0, offScreen.GetTexture());
 		if (vao.Bind()) {
 
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(vertices[0]));
 			glDrawElements(
 				GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]),
 				GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(0));
@@ -150,7 +183,7 @@ int main(){
 		glUseProgram(0);
 
 		window.SwapBuffers();
-	}
+	}*/
 }
 
 
