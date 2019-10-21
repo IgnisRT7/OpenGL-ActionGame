@@ -203,12 +203,12 @@ namespace Font {
 
 	private:
 
-		glm::ivec2 windowSize;			///< 適用されているウインドウサイズ
-		BufferObject vbo, ibo;			///< フォントの頂点データ格納場所
+		glm::ivec2 windowSize = glm::ivec2(2048,1086);	///< 適用されているウインドウサイズ
+		BufferObject vbo, ibo;							///< フォントの頂点データ格納場所
 		VertexArrayObject vao;	
-		glm::vec2 screenSize;			///< スクリーンサイズ
-		glm::vec2 reciprocalScreenSize;	///< スクリーンサイズの逆数
-		GLsizei vboCapacity;			///< 描画に使用するVBOのキャパシティ
+		glm::vec2 screenSize = glm::vec2(2048, 1086);	///< スクリーンサイズ
+		glm::vec2 reciprocalScreenSize = glm::vec2(1) / screenSize;	///< スクリーンサイズの逆数
+		GLsizei vboCapacity = 0;						///< 描画に使用するVBOのキャパシティ
 
 		Shader::ProgramPtr shader;		///< 描画に使用されるシェーダ
 
