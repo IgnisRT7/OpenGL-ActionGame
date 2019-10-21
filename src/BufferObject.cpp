@@ -6,6 +6,7 @@
 
 BufferObject::~BufferObject(){
 
+	std::cout << "[Info]: BufferObject '" << name << "' has been destroyed";
 	Destroy();
 }
 
@@ -15,12 +16,16 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 
 	if (id != 0) {
 		std::cout << "\n[Warning]: '" << name << "'is Already initialized!!" << std::endl;
+		return true;
 	}
 
 	glGenBuffers(1, &id);
 	glBindBuffer(target,id);
 	if (data != nullptr) {
 		glBufferData(target, size, data, usage);
+		if (auto err = glGetError()) {
+			std::cout << glewGetErrorString(err) << std::endl;
+		}
 	}
 
 	//unbind
@@ -121,4 +126,13 @@ void VertexArrayObject::VertexAttribPointer(GLuint index, GLint size, GLenum typ
 
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, offset);
+}
+
+void VertexArrayObject::Destroy(){
+
+	std::cout << "[Info]: Finalized VAO" << std::endl;
+
+	if (id) {
+		glDeleteVertexArrays(1, &id);
+	}
 }

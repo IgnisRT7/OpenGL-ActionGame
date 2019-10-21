@@ -137,6 +137,11 @@ public:
 	*/
 	bool isValid() const { return id != 0; }
 
+	/**
+	*	バッファリソースを削除する
+	*/
+	void Destroy();
+
 private:
 
 	GLuint id = 0;
