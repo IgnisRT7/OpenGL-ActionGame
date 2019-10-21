@@ -5,6 +5,9 @@
 #pragma once
 #include "GLSystem.h"
 #include "BufferObject.h"
+#include "OffscreenBuffer.h"
+#include "Texture.h"
+#include "Shader.h"
 #include <glm/glm.hpp>
 #include <string>
 
@@ -30,6 +33,9 @@ public:
 
 	void CollisionUpdate();
 
+	/**
+	*	描画処理
+	*/
 	void Render();
 
 private:
@@ -43,4 +49,12 @@ private:
 
 	glm::vec2 windowSize;				///< ウインドウサイズ
 	VertexArrayObject backBufferVao;	///< バックバッファのVAO
+
+	Shader::ProgramPtr progOffBuffer,	///< オフスクリーンバッファ描画用シェーダ
+		progBackRender,					///< バックバッファ描画用シェーダ
+		progFontRenderer;					///< フォント描画用シェーダ
+
+	OffscreenBuffer offBuffer;			///< オフスクリーンバッファ
+
+	Texture::Image2DPtr sampleTexture;	///< サンプル用テクスチャ(デバッグ用)
 };
