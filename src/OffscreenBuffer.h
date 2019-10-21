@@ -28,7 +28,7 @@ public:
 	*
 	*	@return テクスチャのID
 	*/
-	GLuint GetTexture() const { return offTexture->Id(); }
+	GLuint GetTexture() const { return offTexture.lock()->Id(); }
 
 	/**
 	*	オフスクリーンバッファの取得
@@ -40,9 +40,9 @@ public:
 
 private:
 
-	std::shared_ptr<Texture::Image2D> offTexture;	///< オフスクリーンレンダリング用テクスチャ
-	GLuint offScreenID;				///< オフスクリーンバッファ用ID
-	GLuint offDepthID;				///< デプスバッファ用ID
+	Texture::Image2DPtr offTexture;	///< オフスクリーンレンダリング用テクスチャ
+	GLuint offScreenID = -1;				///< オフスクリーンバッファ用ID
+	GLuint offDepthID = -1;					///< デプスバッファ用ID
 
 
 };

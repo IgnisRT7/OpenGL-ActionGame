@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\Font.h" />
+    <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\GLSystem.h" />
     <ClInclude Include="src\OffscreenBuffer.h" />
     <ClInclude Include="src\Shader.h" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\Font.cpp" />
+    <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\OffscreenBuffer.cpp" />

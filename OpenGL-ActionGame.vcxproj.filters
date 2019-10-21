@@ -29,6 +29,9 @@
     <ClInclude Include="src\OffscreenBuffer.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameEngine.h">
+      <Filter>ソース ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -71,6 +74,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\OffscreenBuffer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameEngine.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

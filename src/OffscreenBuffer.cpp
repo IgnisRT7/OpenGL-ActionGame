@@ -6,8 +6,13 @@
 #include <GL/glew.h>
 #include <iostream>
 
-OffscreenBuffer::~OffscreenBuffer()
-{
+OffscreenBuffer::~OffscreenBuffer(){
+
+	std::cout << "[Info]: Offscreenbuffer finalized" << std::endl;
+
+	//if (offTexture.expired() && offTexture.lock()->Id()) {
+	//	glDeleteTextures(0, offTexture.lock()->Id());
+	//}
 }
 
 bool OffscreenBuffer::Init(int width, int height, GLenum iformat){
@@ -35,7 +40,7 @@ bool OffscreenBuffer::Init(int width, int height, GLenum iformat){
 		//フレームバッファのみで問題ない
 		glGenFramebuffers(1, &offScreenID);
 		glBindFramebuffer(GL_FRAMEBUFFER, offScreenID);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, offTexture->Id(), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, offTexture.lock()->Id(), 0);
 		glDrawBuffer(GL_NONE);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -52,7 +57,7 @@ bool OffscreenBuffer::Init(int width, int height, GLenum iformat){
 		glGenFramebuffers(1, &offScreenID);
 		glBindFramebuffer(GL_FRAMEBUFFER, offScreenID);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, offDepthID);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, offTexture->Id(),0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, offTexture.lock()->Id(),0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	

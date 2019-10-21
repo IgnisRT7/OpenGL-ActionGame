@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <string>
 
 namespace Texture {
 
@@ -385,6 +386,23 @@ namespace Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		std::string str = "no name";
+
+
+		auto& inst = Buffer::Instance();
+
+		//シェーダ名重複防止処理
+		int counter = 0;
+		std::string newShaderName = "no name";
+		do {
+
+			newShaderName = counter == 0 ? "no name" : "no name" + std::to_string(counter);
+			counter++;
+
+		} while (inst.imageList.find(newShaderName) != inst.imageList.end());
+
+		inst.imageList[newShaderName] = p;
 
 		return p;
 	}
