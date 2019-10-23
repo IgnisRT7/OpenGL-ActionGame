@@ -160,6 +160,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\BufferObject.h" />
+    <ClInclude Include="src\CommonItem.h" />
+    <ClInclude Include="src\DebugLogger.h" />
     <ClInclude Include="src\Font.h" />
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\GLSystem.h" />
@@ -178,6 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BufferObject.cpp" />
+    <ClCompile Include="src\DebugLogger.cpp" />
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />

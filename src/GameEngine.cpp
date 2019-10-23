@@ -1,4 +1,9 @@
+/**
+*	@file GameEngine.cpp
+*/
 #include "GameEngine.h"
+#include "DebugLogger.h"
+
 
 /**
 *	頂点データ構造体
@@ -32,13 +37,15 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 
 	GLSystem::Window& window = GLSystem::Window::Instance();
 
-	std::cout << "[Info]: initializing GameEngine..." << std::endl;
+	auto& log = DebugLogger::LogBuffer::Instance();
+
+	log.Log("initializing GameEngine...");
 
 	try {
 
 		//システムの最深部の初期化
 		if (!window.Init(static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), title.c_str())) {
-			throw("");
+			throw("GLsystem initialization failed!!");
 		}
 
 		//バックバッファ用 ibo,vbo 作成
@@ -76,20 +83,20 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 			throw("shader compile failed!!");
 		}
 
-		if (offBuffer.Init(window.Width(), window.Height(), GL_RGBA)) {
+		if (!offBuffer.Init(window.Width(), window.Height(), GL_RGBA)) {
 			throw("offscreen buffer creation failed!!");
 		}
 
 	}
 	catch (const char* errStr) {
 
-		std::cout << "[Error]: Engine Initialization failed!!" << std::endl;
-		std::cout << "         error log: " << errStr << std::endl;
+		log.Log("Engine Initialization failed!!",DebugLogger::LogType::Error);
+		log.Log((std::string("error log : ") + errStr).c_str(),DebugLogger::LogType::Error);
+
+		
 		return false;
 	}
 	
-
-
 	return true;
 }
 
@@ -100,6 +107,7 @@ void GameEngine::Run(){
 	while (!window.ShouldClose()) {
 
 		Render();
+		DebugLogger::LogBuffer::Instance().Output();
 	}
 }
 
@@ -152,4 +160,9 @@ void GameEngine::Render(){
 	glUseProgram(0);
 
 	window.SwapBuffers();
+}
+
+GameEngine::~GameEngine() {
+
+	DebugLogger::LogBuffer::Instance().Log("Fainalized GameEngine");
 }

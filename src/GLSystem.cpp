@@ -2,6 +2,7 @@
 *	@file GLSystem.cpp
 */
 #include "GLSystem.h"
+#include "DebugLogger.h"
 #include <iostream>
 
 namespace GLSystem {
@@ -45,6 +46,9 @@ namespace GLSystem {
 		}
 		catch (const char* errStr) {
 
+			auto& inst = DebugLogger::LogBuffer::Instance();
+
+			inst.Log("GLSystem initialization Faild");
 			std::cout << "[Error]: GLSystem initialization Faild" << std::endl;
 			std::cout << "         " << errStr;
 			return false;
@@ -68,7 +72,7 @@ namespace GLSystem {
 
 	Window::~Window(){
 
-		std::cout << "[Info]: Fainalized GLsystem" << std::endl;
+		DebugLogger::LogBuffer::Instance().Log("Fainalized GLsystem");
 		if (glfwInitialized) {
 			glfwTerminate();
 		}

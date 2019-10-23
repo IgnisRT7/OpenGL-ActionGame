@@ -41,7 +41,7 @@ public:
 private:
 
 	GameEngine() = default;
-	~GameEngine() {}
+	~GameEngine();
 	GameEngine(const GameEngine&) = delete;
 	const GameEngine& operator=(const GameEngine&) = delete;
 
