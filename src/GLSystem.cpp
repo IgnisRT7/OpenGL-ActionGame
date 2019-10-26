@@ -5,6 +5,8 @@
 #include "DebugLogger.h"
 #include <iostream>
 
+
+
 namespace GLSystem {
 	
 	Window& GLSystem::Window::Instance(){
@@ -15,16 +17,17 @@ namespace GLSystem {
 
 	bool Window::Init(int width, int height, const char* title){
 
+		auto& inst = DebugLogger::LogBuffer::Instance();
+
 		this->width = width;
 		this->height = height;
 
-		std::cout << "[info]: GLSystem is Initializing...";
+		inst.Log("GLSystem is Initializing...");
 
 		try {
 
 			if (isInitialized) {
-				std::cout << "\n[warning]: system is already initialized!!" << std::endl;
-				return true;
+				throw("system is already initialized!!");
 			}
 
 			if (!glfwInit()) {
@@ -46,15 +49,11 @@ namespace GLSystem {
 		}
 		catch (const char* errStr) {
 
-			auto& inst = DebugLogger::LogBuffer::Instance();
-
-			inst.Log("GLSystem initialization Faild");
-			std::cout << "[Error]: GLSystem initialization Faild" << std::endl;
-			std::cout << "         " << errStr;
+			inst.Log("GLSystem initialization Faild", DebugLogger::LogType::Error);
+			inst.Log("error code: ", DebugLogger::LogType::Error);
 			return false;
 		}
-
-		std::cout << "completed." << std::endl;
+		inst.Log("completed");
 	
 		return true;
 	}
