@@ -27,6 +27,7 @@ namespace DebugLogger{
 		Magenta = 35, 
 		Cyan = 36,
 		White = 37,
+
 	}; 
 
 	class LogBuffer{
@@ -39,7 +40,7 @@ namespace DebugLogger{
 		*	@param str	書き込む文字列
 		*	@param type	ログの種類
 		*/
-		void Log(const char* str, LogType type = Infomation);
+		void Log(const char* str, LogType type = LogType::Infomation);
 		
 		/**
 		*	ログを出力する
@@ -66,7 +67,7 @@ namespace DebugLogger{
 
 		using LogMapType = std::pair<LogType, std::string>;
 
-		LogType filter = AllBits;				///< 出力するフィルタ
+		LogType filter = LogType::AllBits;				///< 出力するフィルタ
 		std::vector<LogMapType> logBuf;			///< ログを溜めておくバッファ
 	};
 
