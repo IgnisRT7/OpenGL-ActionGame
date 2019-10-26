@@ -15,17 +15,59 @@ struct Vertex {
 	glm::vec4 color;	///< 頂点色
 };
 
-Vertex vertices[] = {
+const Vertex vertices[] = {
 
 	//ウインドウ全体の矩形
+	{ { -1.0, -1.0, 0 },{ 0, 1 },{ 1, 0, 0, 1} },		// left - down
+	{ { 1.0, -1.0, 0 },{ 1, 1 },{ 0, 1, 0, 1} },		// right - down
+	{ { 1.0, 1.0, 0 },{ 1, 0 },{ 0, 0, 1, 1} },			// right - up
+	{ { -1.0, 1.0, 0 },{ 0, 0 },{ 0.8, 0.8, 0.8, 1} },	// left - up
+
+	//メイン用の矩形
 	{ { -1.0, -1.0, 0 },{ 0, 1 },{ 1, 0, 0, 1} },
-	{ { 1.0, -1.0, 0 },{ 1, 1 },{ 0, 1, 0, 1} },
+	{ { 0.33, -1.0, 0 },{ 1, 1 },{ 0, 1, 0, 1} },
+	{ { 0.33, 0.33, 0 },{ 1, 0 },{ 0, 0, 1, 1} },
+	{ { -1.0, 0.33, 0 },{ 0, 0 },{ 0.8, 0.8, 0.8, 1} },
+
+	//サブ用の矩形
+	{ { -1.0, 0.33, 0 },{ 0, 1 },{ 1, 0, 0, 1} },
+	{ { 0.66, -1.0, 0 },{ 1, 1 },{ 0, 1, 0, 1} },
 	{ { 1.0, 1.0, 0 },{ 1, 0 },{ 0, 0, 1, 1} },
 	{ { -1.0, 1.0, 0 },{ 0, 0 },{ 0.8, 0.8, 0.8, 1} },
 };
 
-GLuint indices[] = {
-	0,1,2,2,3,0
+const GLuint indices[] = {
+	0,1,2,2,3,0,
+	2,3,4,4,2,3,
+	5,6,7,7,5,6,
+};
+
+/**
+*	部分描画データ
+*/
+struct RenderingPart {
+	GLsizei size;	///< 描画するインデックス数
+	GLvoid* offset;	///< 描画開始インデックスのバイトオフセット
+};
+
+/**
+*	RenderingPartを作成する
+*
+*	@param size 描画するインデックス数
+*	@param offset 描画開始インデックスのオフセット(インデックス単位)
+*
+*	@return 作成した部分描画オブジェクト
+*/
+constexpr RenderingPart MakeRenderingPart(GLsizei size, GLsizei offset) {
+	return { size,reinterpret_cast<GLvoid*>(sizeof(offset) * sizeof(GLuint)) };
+}
+
+/**
+*	部分描画データリスト
+*/
+static const RenderingPart renderingParts[] = {
+	MakeRenderingPart(6,0),
+	MakeRenderingPart(6,6),
 };
 
 GameEngine& GameEngine::Instance(){
@@ -107,8 +149,13 @@ void GameEngine::Run(){
 
 	while (!window.ShouldClose()) {
 
+		//各ノード更新処理
+
+		//各コリジョンデータ更新処理
+
+		//各行列データ転送処理
+
 		Render();
-		DebugLogger::LogBuffer::Instance().Output();
 	}
 }
 
@@ -145,10 +192,12 @@ void GameEngine::Render(){
 
 	//バックバッファに描画
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	glClearColor(1, 1, 1, 1);
+	
 	auto progBack_s = progBackRender.lock();
 	progBack_s->UseProgram();
 	progBack_s->BindTexture(GL_TEXTURE0, offBuffer.GetTexture());
+	progBack_s->SetViewProjectionMatrix(glm::identity<glm::mat4>());
 	if (backBufferVao.Bind()) {
 
 		glDrawElements(
