@@ -5,9 +5,14 @@
 #include "DebugLogger.h"
 #include <iostream>
 
-
-
 namespace GLSystem {
+
+	void MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
+
+		auto& inst = DebugLogger::LogBuffer::Instance();
+		inst.Log("receive gl message");
+		inst.Log(message, type == GL_DEBUG_TYPE_ERROR ? DebugLogger::LogType::Error : DebugLogger::LogType::Infomation);
+	}
 	
 	Window& GLSystem::Window::Instance(){
 
@@ -36,6 +41,11 @@ namespace GLSystem {
 			glfwInitialized = true;
 
 			window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+
+			// During init, enable debug output
+			glEnable(GL_DEBUG_OUTPUT);
+			
+			glDebugMessageCallback(MessageCallback, 0);
 
 			if (!window) {
 				throw("GLFW window creation failed!!");

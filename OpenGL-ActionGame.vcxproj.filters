@@ -38,6 +38,15 @@
     <ClInclude Include="src\DebugLogger.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="RenderingPart.h">
+      <Filter>ソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderingPart.h">
+      <Filter>ソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniformBuffer.h">
+      <Filter>ソース ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -57,6 +66,9 @@
       <Filter>リソース ファイル</Filter>
     </None>
     <None Include="res\shader\FinalRender.frag">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="PosSample.frag">
       <Filter>リソース ファイル</Filter>
     </None>
   </ItemGroup>
@@ -86,6 +98,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\DebugLogger.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UniformBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

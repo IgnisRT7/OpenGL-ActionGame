@@ -16,6 +16,12 @@ namespace DebugLogger{
 		AllBits	= 0x07,		// すべてのタイプの列挙
 	};
 
+	static std::string logString[] = {
+		"[Info]: ",
+		"[Warning]: ",
+		"[Error]: ",
+	};
+
 	/// ログの色
 	enum LogColor {
 		//30:black, 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37:white
@@ -41,20 +47,28 @@ namespace DebugLogger{
 		*	@param type	ログの種類
 		*/
 		void Log(const char* str, LogType type = LogType::Infomation);
-		
+
+		/**
+		*	ログをバッファに書き込む
+		*
+		*	@param str	書き込む文字列
+		*	@param type	ログの種類
+		*/
+		void LogtoBuffer(const char* str, LogType type = LogType::Infomation);
+
+		/**
+		*	ログの詳細設定
+		*	
+		*	@param isUsedTag		情報タグの表示/非表示フラグ
+		*	@param dontDuplicateTag	重複するタグが続けて書き込まれた場合はタグを付けない
+		*	@param filter			表示するフィルタ
+		*/
+		void LogInfo(bool isUsedTag = true, bool dontDuplicateTag = true, LogType fileter = LogType::AllBits);
+
 		/**
 		*	ログを出力する
 		*/
 		void Output() const;
-
-		/**
-		*	フィルタを設定する
-		*
-		*	@param フィルタをかけるタイプ(複数選択可)
-		*/
-		void Filter(LogType types) { filter = types; }
-
-
 
 	private:
 
@@ -66,6 +80,10 @@ namespace DebugLogger{
 	private:
 
 		using LogMapType = std::pair<LogType, std::string>;
+
+		bool isOutputTag = true;						///< タグを表示するかどうか
+		bool isDuplicateOutputTag = false;				///< タグの重複表示をするかどうか
+		LogType prevLogType = LogType::AllBits;			///< 前回に出力したログのタイプ
 
 		LogType filter = LogType::AllBits;				///< 出力するフィルタ
 		std::vector<LogMapType> logBuf;			///< ログを溜めておくバッファ

@@ -3,6 +3,7 @@
 */
 
 #include "BufferObject.h"
+#include "DebugLogger.h"
 
 BufferObject::~BufferObject(){
 
@@ -12,10 +13,13 @@ BufferObject::~BufferObject(){
 
 bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
 
-	std::cout << "[Info]: '" << name << "' is initializing...";
+	auto& inst = DebugLogger::LogBuffer::Instance();
 
+	inst.Log("BufferObject::init");
+	inst.Log((std::string("name: ") + std::string(name)).c_str());
+		
 	if (id != 0) {
-		std::cout << "\n[Warning]: '" << name << "'is Already initialized!!" << std::endl;
+		inst.Log("this buffer is Allready initialized!!", DebugLogger::LogType::Warning);
 		return true;
 	}
 
@@ -32,7 +36,9 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	glBindBuffer(target, 0);
 
 	if (auto err = glGetError() != GL_NO_ERROR) {
-		std::cout << "\n[Error]: errorcode : " << std::hex << err << std::endl;
+		inst.Log("bufferobject generation failed! error is: ", DebugLogger::LogType::Error);
+	//	inst.Log(reinterpret_cast<const char*>(gluGetString(err)),DebugLogger::LogType::Error);
+
 		return false;
 	}
 
@@ -41,7 +47,7 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	this->size = size;
 	this->usage = usage;
 
-	std::cout << "completed." << std::endl;
+	inst.Log("completed");
 
 	return true;
 }

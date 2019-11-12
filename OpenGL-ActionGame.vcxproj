@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="RenderingPart.h" />
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\CommonItem.h" />
     <ClInclude Include="src\DebugLogger.h" />
@@ -166,11 +167,14 @@
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\GLSystem.h" />
     <ClInclude Include="src\OffscreenBuffer.h" />
+    <ClInclude Include="src\RenderingPart.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\UniformBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="PosSample.frag" />
     <None Include="res\shader\Default.frag" />
     <None Include="res\shader\Default.vert" />
     <None Include="res\shader\FinalRender.frag" />
@@ -188,6 +192,7 @@
     <ClCompile Include="src\OffscreenBuffer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\UniformBuffer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
