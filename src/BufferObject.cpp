@@ -28,7 +28,7 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	if (data != nullptr) {
 		glBufferData(target, size, data, usage);
 		if (auto err = glGetError()) {
-			std::cout << glewGetErrorString(err) << std::endl;
+			std::cout << err << std::endl;
 		}
 	}
 

@@ -7,7 +7,7 @@
 
 namespace GLSystem {
 
-	void MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
+	void APIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam) {
 
 		auto& inst = DebugLogger::LogBuffer::Instance();
 		inst.Log("receive gl message");
