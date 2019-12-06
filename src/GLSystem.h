@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "GamePad.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -67,6 +69,8 @@ namespace GLSystem {
 		*/
 		void SwapBuffers();
 
+		const GLFWwindow* operator()() { return window; }
+
 		///---- ここからはのちに実装予定 ----///
 		/*
 		*	経過時間の計算処理
@@ -82,8 +86,12 @@ namespace GLSystem {
 		const Window& operator=(const Window&) = delete;
 
 		GLFWwindow* window = nullptr;	///< ウインドウ管理ハンドル
+		Input input;					///< 入力情報管理
+
 		bool isInitialized = false;		///< 初期化済みフラグ
 		bool glfwInitialized = false;	///< GLFW初期化済みフラグ
+
+		
 
 		int height = 0;					///< ウインドウの縦幅
 		int width = 0;					///< ウインドウの横幅

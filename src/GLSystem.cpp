@@ -42,11 +42,6 @@ namespace GLSystem {
 
 			window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-			// During init, enable debug output
-			glEnable(GL_DEBUG_OUTPUT);
-			
-			glDebugMessageCallback(MessageCallback, 0);
-
 			if (!window) {
 				throw("GLFW window creation failed!!");
 			}
@@ -56,6 +51,12 @@ namespace GLSystem {
 			if (glewInit()) {
 				throw("GLEW initialization failed!!");
 			}
+
+			// During init, enable debug output
+			glEnable(GL_DEBUG_OUTPUT);
+			glDebugMessageCallback(MessageCallback, this);
+
+			input.Init();
 		}
 		catch (const char* errStr) {
 
