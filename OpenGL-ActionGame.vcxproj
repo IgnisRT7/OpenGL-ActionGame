@@ -169,8 +169,11 @@
     <ClInclude Include="src\GameEngine.h" />
     <ClInclude Include="src\GamePad.h" />
     <ClInclude Include="src\GLSystem.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Node.h" />
     <ClInclude Include="src\OffscreenBuffer.h" />
     <ClInclude Include="src\RenderingPart.h" />
+    <ClInclude Include="src\Resource.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\UniformBuffer.h" />
@@ -194,6 +197,7 @@
     <ClCompile Include="src\GamePad.cpp" />
     <ClCompile Include="src\GLSystem.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\OffscreenBuffer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
