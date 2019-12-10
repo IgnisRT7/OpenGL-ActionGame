@@ -47,7 +47,7 @@ private:
 
 private:
 
-	glm::vec2 windowSize;				///< ウインドウサイズ
+	glm::vec2 windowSize;				///< ウインドウサイズ(マスターの解像度)
 	VertexArrayObject backBufferVao;	///< バックバッファのVAO
 
 	Shader::ProgramPtr progOffBuffer,	///< オフスクリーンバッファ描画用シェーダ

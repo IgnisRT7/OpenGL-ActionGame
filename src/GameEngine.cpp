@@ -4,6 +4,7 @@
 #include "GameEngine.h"
 #include "DebugLogger.h"
 #include "RenderingPart.h"
+#include "Resource.h"
 
 GameEngine& GameEngine::Instance(){
 
@@ -53,9 +54,9 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 			throw("SampleTexture creation failed!!");
 		}
 
-		progBackRender = Shader::Buffer::Create("res/shader/FinalRender.vert", "res/shader/FinalRender.frag");
-		progOffBuffer = Shader::Buffer::Create("res/shader/Default.vert", "res/shader/Default.frag");
-		progFontRenderer = Shader::Buffer::Create("res/shader/FontRenderer.vert", "res/shader/FontRenderer.frag");
+		progBackRender = Shader::Buffer::Create(ShaderFile::finalRender_vert, ShaderFile::finalRender_frag);
+		progOffBuffer = Shader::Buffer::Create(ShaderFile::default_vert, ShaderFile::default_frag);
+		progFontRenderer = Shader::Buffer::Create(ShaderFile::fontRenderer_vert, ShaderFile::fontRenderer_frag);
 
 		if (progBackRender.expired() || progOffBuffer.expired() || progFontRenderer.expired()) {
 			throw("shader compile failed!!");
@@ -64,10 +65,8 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		if (!offBuffer.Init(window.Width(), window.Height(), GL_RGBA)) {
 			throw("offscreen buffer creation failed!!");
 		}
-
 	}
 	catch (const char* errStr) {
-
 
 		log.LogtoBuffer("Engine Initialization failed!!",DebugLogger::LogType::Error);
 		log.LogtoBuffer((std::string("error log : ") + errStr).c_str(),DebugLogger::LogType::Error);
@@ -86,7 +85,10 @@ void GameEngine::Run(){
 
 	while (!window.ShouldClose()) {
 
+		Input::Update();
+
 		//各ノード更新処理
+		//Update();
 
 		//各コリジョンデータ更新処理
 
