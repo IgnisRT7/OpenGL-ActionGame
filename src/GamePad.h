@@ -106,11 +106,19 @@ namespace JoyStick{
 class Input {
 public:
 
+	static Input& Instance();
+	
+	static void Init();
+	static void Update();
+
+	bool getKeyInput(JoyStick::Button button) { return buttons & static_cast<uint32_t>(button); }
+
+private:
+
 	Input() = default;
 	Input(const Input&) = delete;
-	
-	void Init();
-	void Update();
+	const Input& operator=(const Input&) = delete;
+	~Input() = default;
 
 private:
 

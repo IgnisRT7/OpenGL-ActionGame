@@ -3,12 +3,19 @@
 */
 #include "GamePad.h"
 
+Input& Input::Instance(){
+
+	static Input inst;
+	return inst;
+}
+
 void Input::Init(){
 
 	const int joystickCountMax = 4;
+	Input& inst = Instance();
 
 	//"glfwKeyID -> bit" conversion mapping
-	keyToPadMap = std::vector<JoyStick::KeyMap>
+	inst.keyToPadMap = std::vector<JoyStick::KeyMap>
 	{
 			{ GLFW_KEY_J, static_cast<uint32_t>(JoyStick::Button::A) },
 			{ GLFW_KEY_K, static_cast<uint32_t>(JoyStick::Button::B) },
@@ -24,7 +31,7 @@ void Input::Init(){
 	};
 
 	//"glfwGamepadIndex -> bit" conversion mapping
-	PadToPadMap = std::vector<JoyStick::KeyMap>
+	inst.PadToPadMap = std::vector<JoyStick::KeyMap>
 	{
 		{ JoyStick::GAMEPAD_BUTTON_A, static_cast<uint32_t>(JoyStick::Button::A) },
 		{ JoyStick::GAMEPAD_BUTTON_B, static_cast<uint32_t>(JoyStick::Button::B) },
@@ -33,31 +40,32 @@ void Input::Init(){
 		{ JoyStick::GAMEPAD_BUTTON_L, static_cast<uint32_t>(JoyStick::Button::L) },
 		{ JoyStick::GAMEPAD_BUTTON_R, static_cast<uint32_t>(JoyStick::Button::R) },
 		{ JoyStick::GAMEPAD_BUTTON_START, static_cast<uint32_t>(JoyStick::Button::START) },
-	}
+	};
 	//this->padsState.reserve(16);
 	//glfwJoystickIsGamepad()
 }
 
 void Input::Update() {
 
+	Input& inst = Instance();
 	auto& wndInst = GLSystem::Window::Instance();
 	GLFWwindow* window = const_cast<GLFWwindow*>(wndInst());
-	auto prevButtons = this->buttons;
+	auto prevButtons = inst.buttons;
 
 	//update keystate
-	for (size_t i = 0; i < keyState.size(); i++) {
+	for (size_t i = 0; i < inst.keyState.size(); i++) {
 
 		const bool pressed = glfwGetKey(window, i) == GLFW_PRESS;
 		if (pressed) {
-			if(keyState[i] == KeyState::release){
-				keyState[i] = KeyState::startPress;
+			if(inst.keyState[i] == KeyState::release){
+				inst.keyState[i] = KeyState::startPress;
 			}
-			else if (keyState[i] != KeyState::startPress) {
-				keyState[i] = KeyState::press;
+			else if (inst.keyState[i] != KeyState::startPress) {
+				inst.keyState[i] = KeyState::press;
 			}
 		}
-		else if(keyState[i] != KeyState::release){
-			keyState[i] = KeyState::release;
+		else if(inst.keyState[i] != KeyState::release){
+			inst.keyState[i] = KeyState::release;
 		}
 	}
 
@@ -69,25 +77,25 @@ void Input::Update() {
 	if (axes && buttons && axesCount >= 2 && buttonCount >= 8) {
 
 		//initialize the part ot be updated
-		this->buttons &= ~static_cast<uint32_t>(JoyStick::Button::ALLBITS);
+		inst.buttons &= ~static_cast<uint32_t>(JoyStick::Button::ALLBITS);
 
 		//threshold for recognizing that the axis has been tilted
 		static const float threshould = 0.3f;
 
 		//Y axis of left stick 
 		if (axes[JoyStick::GAMEPAD_AXES_LEFT_Y] > threshould) {
-			this->buttons |= static_cast<uint32_t>(JoyStick::Button::UP);
+			inst.buttons |= static_cast<uint32_t>(JoyStick::Button::UP);
 		}
 		else if (axes[JoyStick::GAMEPAD_AXES_LEFT_Y] < -threshould) {
-			this->buttons |= static_cast<uint32_t>(JoyStick::Button::DOWN);
+			inst.buttons |= static_cast<uint32_t>(JoyStick::Button::DOWN);
 		}
 
 		//X axis of left stick
 		if (axes[JoyStick::GAMEPAD_AXES_LEFT_X] > threshould) {
-			this->buttons |= static_cast<uint32_t>(JoyStick::Button::LEFT);
+			inst.buttons |= static_cast<uint32_t>(JoyStick::Button::LEFT);
 		}
 		else if (axes[JoyStick::GAMEPAD_AXES_LEFT_X] < -threshould) {
-			this->buttons |= static_cast<uint32_t>(JoyStick::Button::RIGHT);
+			inst.buttons |= static_cast<uint32_t>(JoyStick::Button::RIGHT);
 		}
 		/*
 		//Y axis of right stick
@@ -107,29 +115,29 @@ void Input::Update() {
 		}
 		*/
 
-		for (const auto& e : PadToPadMap) {
+		for (const auto& e : inst.PadToPadMap) {
 
 			if (buttons[e.keyID] == GLFW_PRESS) {
-				this->buttons |= static_cast<uint32_t>(e.gamepadBit);
+				inst.buttons |= static_cast<uint32_t>(e.gamepadBit);
 			}
 			else if (buttons[e.keyID] == GLFW_RELEASE) {
-				this->buttons &= ~static_cast<uint32_t>(e.gamepadBit);
+				inst.buttons &= ~static_cast<uint32_t>(e.gamepadBit);
 			}
 		}
 	}
 	else {
 		//Receiving input with keyboard instead of joystick
 		
-		for (const auto& e : keyToPadMap) {
+		for (const auto& e : inst.keyToPadMap) {
 			const int key = glfwGetKey(window, e.keyID);
 			if (key == GLFW_PRESS) {
-				this->buttons |= static_cast<uint32_t>(e.gamepadBit);
+				inst.buttons |= static_cast<uint32_t>(e.gamepadBit);
 			}
 			else if (key == GLFW_RELEASE) {
-				this->buttons &= ~static_cast<uint32_t>(e.gamepadBit);
+				inst.buttons &= ~static_cast<uint32_t>(e.gamepadBit);
 			}
 		}
 	}
 
-	this->buttonDown = ~this->buttons & prevButtons;
+	inst.buttonDown = ~inst.buttons & prevButtons;
 }
