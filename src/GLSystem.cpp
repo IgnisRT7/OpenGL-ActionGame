@@ -56,7 +56,7 @@ namespace GLSystem {
 			glEnable(GL_DEBUG_OUTPUT);
 			glDebugMessageCallback(MessageCallback, this);
 
-			input.Init();
+			Input::Init();
 		}
 		catch (const char* errStr) {
 

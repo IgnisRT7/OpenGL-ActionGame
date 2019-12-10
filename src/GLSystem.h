@@ -69,6 +69,9 @@ namespace GLSystem {
 		*/
 		void SwapBuffers();
 
+		/**
+		*	ウインドウのハンドルを取得
+		*/
 		const GLFWwindow* operator()() { return window; }
 
 		///---- ここからはのちに実装予定 ----///
@@ -86,7 +89,6 @@ namespace GLSystem {
 		const Window& operator=(const Window&) = delete;
 
 		GLFWwindow* window = nullptr;	///< ウインドウ管理ハンドル
-		Input input;					///< 入力情報管理
 
 		bool isInitialized = false;		///< 初期化済みフラグ
 		bool glfwInitialized = false;	///< GLFW初期化済みフラグ
