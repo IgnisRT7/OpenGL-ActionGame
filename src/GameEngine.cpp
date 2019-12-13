@@ -18,7 +18,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 
 	auto& log = DebugLogger::LogBuffer::Instance();
 
-	log.LogtoBuffer("initializing GameEngine...");
+	log.Log("initializing GameEngine...");
 
 	try {
 
@@ -49,7 +49,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		}
 
 		/// -- ここからデバッグ用コード --
-		sampleTexture = Texture::Buffer::Instance().LoadFromFile("res/texture/sampleTex.dds");
+		sampleTexture = Texture::Buffer::Instance().LoadFromFile(TextureFile::testDebugTexture);
 		if (sampleTexture.expired()) {
 			throw("SampleTexture creation failed!!");
 		}
@@ -68,14 +68,12 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 	}
 	catch (const char* errStr) {
 
-		log.LogtoBuffer("Engine Initialization failed!!",DebugLogger::LogType::Error);
-		log.LogtoBuffer((std::string("error log : ") + errStr).c_str(),DebugLogger::LogType::Error);
+		log.Log("Engine Initialization failed!!",DebugLogger::LogType::Error);
+		log.Log((std::string("error log : ") + errStr).c_str(),DebugLogger::LogType::Error);
 
-		log.Output();
 		return false;
 	}
 	
-	log.Output();
 	return true;
 }
 
@@ -93,7 +91,7 @@ void GameEngine::Run(){
 		//各コリジョンデータ更新処理
 
 		//各行列データ転送処理
-
+		
 		Render();
 	}
 }
@@ -145,8 +143,8 @@ void GameEngine::Render(){
 	if (backBufferVao.Bind()) {
 
 		glDrawElements(
-			GL_TRIANGLES, Rendering::parts[2].size,
-			GL_UNSIGNED_INT, Rendering::parts[2].offset);
+			GL_TRIANGLES, Rendering::parts[0].size,
+			GL_UNSIGNED_INT, Rendering::parts[0].offset);
 
 		backBufferVao.UnBind();
 	}
