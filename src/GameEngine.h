@@ -10,6 +10,9 @@
 #include "Shader.h"
 #include <glm/glm.hpp>
 #include <string>
+#include <functional>
+
+using drawCallback = std::function<bool()>;
 
 class GameEngine {
 public:
@@ -23,6 +26,11 @@ public:
 	*	@param title		タイトル名
 	*/
 	bool Init(glm::vec2 windowsize, std::string title);
+
+	/**
+	*	描画ステートの初期化処理
+	*/
+	void InitRenderState();
 
 	/**
 	*	エンジンの起動処理
@@ -46,6 +54,17 @@ private:
 	const GameEngine& operator=(const GameEngine&) = delete;
 
 private:
+
+	struct RenderState {
+		OffscreenBufferPtr framebuffer;	///< フレームバッファオブジェクト
+		glm::vec4 clearColor;			///< バッファのクリア色
+		GLenum ClearBuffer;				///< クリアするバッファビット
+		std::vector<GLenum> enableList;	///< 有効化するGLステートリスト
+		std::vector<GLenum> disableList;///< 無効化するGLステートリスト
+		drawCallback callback;			///< 描画に使用されるコールバック
+	};
+
+	std::list<RenderState> renderStateList;		///< 描画ステートリスト
 
 	glm::vec2 windowSize;				///< ウインドウサイズ(マスターの解像度)
 	VertexArrayObject backBufferVao;	///< バックバッファのVAO

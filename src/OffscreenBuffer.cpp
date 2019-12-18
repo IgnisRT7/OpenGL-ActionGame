@@ -15,6 +15,60 @@ OffscreenBuffer::~OffscreenBuffer(){
 	//}
 }
 
+OffscreenBufferPtr OffscreenBuffer::Create(int width, int height, GLenum iformat){
+
+	struct Impl : OffscreenBuffer{};
+
+	auto p = std::make_shared<Impl>();
+
+	GLenum texFormat = GL_RGBA;
+	switch (iformat) {
+	default:
+		texFormat = GL_RGBA;
+		break;
+
+	case GL_DEPTH_COMPONENT16:
+	case GL_DEPTH_COMPONENT24:
+	case GL_DEPTH_COMPONENT32:
+	case GL_DEPTH_COMPONENT32F:
+		texFormat = GL_DEPTH_COMPONENT;
+	}
+
+	p->offTexture = Texture::Buffer::Create(width, height, iformat, texFormat, nullptr);
+
+	if (iformat == GL_DEPTH_COMPONENT) {
+
+		//深度バッファ描画時はシェーダ内で切り捨て処理を行うので
+		//フレームバッファのみで問題ない
+		glGenFramebuffers(1, &p->offScreenID);
+		glBindFramebuffer(GL_FRAMEBUFFER, p->offScreenID);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, p->offTexture.lock()->Id(), 0);
+		glDrawBuffer(GL_NONE);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	else {
+
+		//深度バッファの作成
+		glGenRenderbuffers(1, &p->offDepthID);
+		glBindRenderbuffer(GL_RENDERBUFFER, p->offDepthID);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//フレームバッファの作成 
+		glGenFramebuffers(1, &p->offScreenID);
+		glBindFramebuffer(GL_FRAMEBUFFER, p->offScreenID);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, p->offDepthID);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, p->offTexture.lock()->Id(), 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "[Error]: Framebuffer generate faild!" << std::endl;
+	}
+	
+}
+
 bool OffscreenBuffer::Init(int width, int height, GLenum iformat){
 
 	//GLuint offBuffer,frameBuffer,depthBuffer;

@@ -73,8 +73,16 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 
 		return false;
 	}
+
+
 	
 	return true;
+}
+
+void GameEngine::InitRenderState() {
+
+
+
 }
 
 void GameEngine::Run(){

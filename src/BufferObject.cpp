@@ -26,6 +26,7 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	glGenBuffers(1, &id);
 	glBindBuffer(target,id);
 	if (data != nullptr) {
+
 		glBufferData(target, size, data, usage);
 		if (auto err = glGetError()) {
 			std::cout << err << std::endl;
