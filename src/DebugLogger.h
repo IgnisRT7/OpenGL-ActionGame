@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 
 namespace DebugLogger{
 
@@ -25,7 +26,7 @@ namespace DebugLogger{
 	/// ログの色
 	enum LogColor {
 		//30:black, 31:red, 32:green, 33:yellow, 34:blue, 35:magenta, 36:cyan, 37:white
-		Block	= 30,
+		Black	= 30,
 		Red		= 31,
 		Green	= 32,
 		Yellow	= 33,
@@ -73,7 +74,20 @@ namespace DebugLogger{
 		LogType prevLogType = LogType::AllBits;			///< 前回に出力したログのタイプ
 
 		LogType filter = LogType::AllBits;				///< 出力するフィルタ
-		std::vector<LogMapType> logBuf;			///< ログを溜めておくバッファ
+		std::vector<LogMapType> logBuf;					///< ログを溜めておくバッファ
+		
+		struct StringInfo {
+			LogColor logColor;		///< ログの色
+			std::string tagString;	///< タグ文字列
+		};
+		
+		// 出力文字の情報
+		std::map<LogType, StringInfo> colorMap = {			
+			{ Infomation, {Cyan, "[info]"} },		///< 情報ログ
+			{ Warning, {Yellow, "[Warning]"} },		///< 警告ログ
+			{ Error, {Red, "Error"} },				///< エラーログ
+		};
+		
 	};
 
 
