@@ -3,38 +3,63 @@
 
 namespace UniformBuffer {
 
-	bool UniformBuffer::UniformBlock::MapBuffer() {
+	UniformBufferObjectPtr Buffer::Create(GLsizeiptr size, GLuint bindingPoint, const char* name) {
 
-
-		return false;
-	}
-
-	UniformBlockPtr Create(GLsizeiptr size, GLuint bindingPoint, const char* name){
-
-		DebugLogger::LogBuffer& inst = DebugLogger::LogBuffer::Instance();
-		inst.Log("Creating UniformBuffer. name: " );
-
-		struct Impl : UniformBlock {};
-		auto p = std::make_shared<UniformBlock>();
-
+		struct Impl : UniformBufferObject { Impl() {} ~Impl() {} };
+		auto p = std::make_shared<UniformBufferObject>();
 		if (!p) {
-			return {};
+			return{};
 		}
 
-		GLuint ubo;
-		glGenBuffers(1, &ubo);
-		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+		//Securing size considering ubo alignment
+		GLint offsetAlignment = 0;
+		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &offsetAlignment);
+		size = ((size + offsetAlignment - 1) / offsetAlignment) * offsetAlignment;
+
+		//create ubo
+		glGenBuffers(1, &p->uboId);
+		glBindBuffer(GL_UNIFORM_BUFFER, p->uboId);
 		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo);
+		glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, p->uboId);
 
-		GLenum err = glGetError();
-		if (err != GL_NO_ERROR) {
+		if (glGetError()) {
 			return {};
 		}
 
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		p->size = size;
+		p->bindingPoint = bindingPoint;
+		p->name = name;
 
 		return p;
+	}
+
+	UniformBufferObject::~UniformBufferObject() {
+		
+		if (uboId) {
+			glDeleteBuffers(1, &uboId);
+		}
+	}
+
+	void UniformBufferObject::BindBufferRange(GLintptr offset, GLintptr size) {
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, uboId, offset, size);
+	}
+
+	bool UniformBufferObject::BufferSubData(const GLvoid* data, GLintptr offset, GLsizeiptr size) {
+
+		if (offset + size > this->size) {
+			return false;	// size over.
+		}
+
+		if (offset == 0 && size == 0) {
+			size = this->size;
+		}
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboId);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		return glGetError() == GL_NO_ERROR();
 	}
 
 }

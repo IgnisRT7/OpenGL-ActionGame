@@ -241,6 +241,17 @@ namespace Texture {
 		return texId;
 	}
 
+	void Image2D::SetWrapMode(GLenum mode){
+
+		if (this->texId) {
+			/*
+			glBindTexture(,texId);
+			glTexParameteri(texId, GL_TEXTURE_WRAP_S, mode);
+			glTexParameteri(texId, GL_TEXTURE_WRAP_T, mode);
+			glBindTexture(texId, 0);*/
+		}
+	}
+
 	Image2D::~Image2D() {
 		if (texId) {
 			glDeleteTextures(1, &texId);

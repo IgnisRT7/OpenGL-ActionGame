@@ -14,7 +14,7 @@ namespace DebugLogger {
 		return instance;
 	}
 
-	void LogBuffer::Log(const char* str, LogType type){
+	void LogBuffer::Log(const char* str, LogType type, bool isReturnCode){
 
 		auto& inst = LogBuffer::Instance();
 
@@ -25,11 +25,16 @@ namespace DebugLogger {
 		//ログの挿入
 		newStr.insert(sizeof("\033["), str);
 		//タグコードの挿入
-		newStr.insert(sizeof("\033["), inst.isOutputTag && inst.prevLogType != type ? strInfo.tagString : "\t");
+		newStr.insert(sizeof("\033["), inst.isOutputTag && inst.prevLogType != type ? strInfo.tagString + ": " : "\t");
 		//色コードの挿入
 		newStr.insert(sizeof("\033[") - 1, std::to_string(strInfo.logColor));
 
-		std::cout << newStr << std::endl;
+		if (isReturnCode) {
+			std::cout << newStr << std::endl;
+		}
+		else {
+			std::cout << newStr;
+		}
 		inst.prevLogType = type;
 	}
 
@@ -38,6 +43,16 @@ namespace DebugLogger {
 		this->isOutputTag = isUsedTag;
 		this->isDuplicateOutputTag = dontDuplicateTag;
 		this->filter = fileter;
+	}
+
+	void LogBuffer::ClearInfo() {
+
+		this->prevLogType = LogType::AllBits;
+	}
+
+	void Log(const char* str, LogType type, bool isReturnCode) {
+
+		LogBuffer::Instance().Log(str, type, isReturnCode);
 	}
 
 }

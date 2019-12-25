@@ -37,6 +37,11 @@ namespace DebugLogger{
 
 	}; 
 
+	/**
+	*	CopyReference. LogBuffer::Log
+	*/
+	void Log(const char* str, LogType type = LogType::Infomation, bool isReturnCode = true);
+
 	class LogBuffer{
 	public:
 		static LogBuffer& Instance();
@@ -47,7 +52,7 @@ namespace DebugLogger{
 		*	@param str	書き込む文字列
 		*	@param type	ログの種類
 		*/
-		static void Log(const char* str, LogType type = LogType::Infomation);
+		static void Log(const char* str, LogType type = LogType::Infomation, bool isReturnCode = true);
 
 		/**
 		*	ログの詳細設定
@@ -57,6 +62,8 @@ namespace DebugLogger{
 		*	@param filter			表示するフィルタ
 		*/
 		void LogInfo(bool isUsedTag = true, bool dontDuplicateTag = true, LogType fileter = LogType::AllBits);
+
+		void ClearInfo();
 
 	private:
 

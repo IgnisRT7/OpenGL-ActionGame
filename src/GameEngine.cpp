@@ -62,7 +62,8 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 			throw("shader compile failed!!");
 		}
 
-		if (!offBuffer.Init(window.Width(), window.Height(), GL_RGBA)) {
+		offBuffer = OffscreenBuffer::Create(window.Width(), window.Height(), GL_RGBA);
+		if (!offBuffer) {
 			throw("offscreen buffer creation failed!!");
 		}
 	}
@@ -74,7 +75,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		return false;
 	}
 
-
+	log.ClearInfo();
 	
 	return true;
 }
@@ -115,7 +116,7 @@ void GameEngine::Render(){
 	matVP = glm::identity<glm::mat4>();
 
 	//オフスクリーンバッファに描画
-	glBindFramebuffer(GL_FRAMEBUFFER, offBuffer.GetFrameBuffer());
+	glBindFramebuffer(GL_FRAMEBUFFER, offBuffer->GetFrameBuffer());
 
 	glClearColor(0.1f, 0.8f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -146,7 +147,7 @@ void GameEngine::Render(){
 	progBack_s->UseProgram();
 
 	//オフスクリーンバッファのテクスチャをバインド
-	progBack_s->BindTexture(GL_TEXTURE0, offBuffer.GetTexture());
+	progBack_s->BindTexture(GL_TEXTURE0, offBuffer->GetTexture());
 	progBack_s->SetViewProjectionMatrix(glm::identity<glm::mat4>());
 	if (backBufferVao.Bind()) {
 
@@ -164,5 +165,5 @@ void GameEngine::Render(){
 
 GameEngine::~GameEngine() {
 
-	DebugLogger::LogBuffer::Instance().Log("Fainalized GameEngine");
+//	DebugLogger::LogBuffer::Instance().Log("Fainalized GameEngine");
 }

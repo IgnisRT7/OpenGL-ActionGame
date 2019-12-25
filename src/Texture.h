@@ -31,6 +31,13 @@ namespace Texture {
 		GLuint Id() const { return texId; }
 
 		/**
+		*	テクスチャ・ラップ・モードの設定
+		*
+		*	適用するテクスチャ・ラップ・モード
+		*/
+		void SetWrapMode(GLenum mode);
+
+		/**
 		*	テクスチャが有効か否かを取得
 		*
 		*	@retval true	有効化

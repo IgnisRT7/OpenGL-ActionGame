@@ -40,11 +40,12 @@ public:
 	*/
 	GLuint GetFrameBuffer() const { return offScreenID; }
 	
+	~OffscreenBuffer();
 
 private:
 
 	OffscreenBuffer() = default;
-	~OffscreenBuffer();
+
 	OffscreenBuffer(const OffscreenBuffer&) = delete;
 	const OffscreenBuffer& operator=(const OffscreenBuffer&) = delete;
 

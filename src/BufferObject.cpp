@@ -13,13 +13,12 @@ BufferObject::~BufferObject(){
 
 bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
 
-	auto& inst = DebugLogger::LogBuffer::Instance();
-
- 	DebugLogger::LogBuffer::Log("BufferObject::init");
-	inst.Log((std::string("name: ") + std::string(name)).c_str());
+	std::string logstr("BufferObject::init() name:");
+	logstr.insert(logstr.size(), name);
+	DebugLogger::Log(logstr.c_str(), DebugLogger::Infomation, false);
 		
 	if (id != 0) {
-		inst.Log("this buffer is Allready initialized!!", DebugLogger::LogType::Warning);
+		DebugLogger::Log("this buffer is Allready initialized!!", DebugLogger::LogType::Warning);
 		return true;
 	}
 
@@ -29,16 +28,17 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 
 		glBufferData(target, size, data, usage);
 		if (auto err = glGetError()) {
-			std::cout << err << std::endl;
+			DebugLogger::Log("BufferSubData faild!", DebugLogger::Error);
+			return false;
 		}
+
 	}
 
 	//unbind
 	glBindBuffer(target, 0);
 
 	if (auto err = glGetError() != GL_NO_ERROR) {
-		inst.Log("bufferobject generation failed! error is: ", DebugLogger::LogType::Error);
-	//	inst.Log(reinterpret_cast<const char*>(gluGetString(err)),DebugLogger::LogType::Error);
+		DebugLogger::Log("bufferobject creation failed! ", DebugLogger::LogType::Error);
 
 		return false;
 	}
@@ -48,18 +48,16 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	this->size = size;
 	this->usage = usage;
 
-	inst.Log("completed");
+	DebugLogger::Log("completed");
 
 	return true;
 }
 
 bool BufferObject::BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid* data){
 
-	auto& inst = DebugLogger::LogBuffer::Instance();
-
 	if (offset + size > this->size) {
 
-		inst.Log("Insufficient destination buffer size",DebugLogger::Warning);
+		DebugLogger::Log("Insufficient destination buffer size",DebugLogger::Warning);
 		return false;
 	}
 
@@ -70,7 +68,7 @@ bool BufferObject::BufferSubData(GLintptr offset, GLsizeiptr size, const GLvoid*
 	GLenum error = glGetError();
 
 	if (error != GL_NO_ERROR) {
-		inst.Log("Data transfer failed!!",DebugLogger::Error);
+		DebugLogger::Log("Data transfer failed!!",DebugLogger::Error);
 		return false;
 	}
 	return true;
@@ -92,11 +90,10 @@ VertexArrayObject::~VertexArrayObject(){
 
 bool VertexArrayObject::Init(GLuint vboId, GLuint iboId){
 
-	auto& inst = DebugLogger::LogBuffer::Instance();
-	inst.Log("VAO is initializing...");
+	DebugLogger::Log("VertexArrayObject::Init() ", DebugLogger::Infomation, false);
 
 	if (id != 0) {
-		inst.Log("VAO is Already initialized!!",DebugLogger::Warning);
+		DebugLogger::Log("VAO is Already initialized!!",DebugLogger::Warning);
 	}
 	glGenVertexArrays(1, &id);
 	glBindVertexArray(id);
@@ -108,11 +105,11 @@ bool VertexArrayObject::Init(GLuint vboId, GLuint iboId){
 
 	if (auto err = glGetError() != GL_NO_ERROR) {
 
-		inst.Log("Error!",DebugLogger::Error);
+		DebugLogger::Log("Error!",DebugLogger::Error);
 		return false;
 	}
 
-	inst.Log("completed.");
+	DebugLogger::Log("completed.");
 
 	return true;
 }
@@ -141,7 +138,7 @@ void VertexArrayObject::VertexAttribPointer(GLuint index, GLint size, GLenum typ
 
 void VertexArrayObject::Destroy(){
 
-	std::cout << "[Info]: Finalized VAO" << std::endl;
+	DebugLogger::Log("Destroy VAO");
 
 	if (id) {
 		glDeleteVertexArrays(1, &id);

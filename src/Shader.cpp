@@ -2,7 +2,7 @@
 *	@file Shader.cpp
 */
 #include "Shader.h"
-
+#include "DebugLogger.h"
 #include <iostream>
 #include <string>
 
@@ -19,7 +19,7 @@ namespace Shader {
 	*/
 	bool ReadFromFile(const char* filename, std::vector<char>& buf) {
 
-		std::cout << "Reading '" << filename << "' shader...";
+		auto& inst = DebugLogger::LogBuffer::Instance();
 
 		try {
 
@@ -42,11 +42,11 @@ namespace Shader {
 			}
 		}
 		catch (const char* errorStr) {
-			std::cout << errorStr << std::endl;
+
+			inst.Log(errorStr);
 			return false;
 		}
 
-		buf.back() = '\0';
 		return true;
 	}
 
@@ -61,6 +61,8 @@ namespace Shader {
 	*/
 	GLuint CompileShader(GLenum type, const GLchar* string){
 
+		auto& inst = DebugLogger::LogBuffer::Instance();
+
 		GLuint shader = glCreateShader(type);
 		glShaderSource(shader, 1, &string, nullptr);
 		glCompileShader(shader);
@@ -74,14 +76,15 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetShaderInfoLog(shader, infoLen, NULL, buf.data());
-					std::cerr << "\n[Error]: シェーダのコンパイルに失敗￥n" << buf.data() << std::endl;
+					std::string logstr("shader compile faild! error message: ");
+					logstr.append(buf.data());
+					inst.Log(logstr.c_str());
 				}
 			}
 			glDeleteShader(shader);
 			return 0;
 		}
 
-		std::cout << "completed." << std::endl;
 		return shader;
 	}
 
@@ -95,11 +98,16 @@ namespace Shader {
 	*/
 	GLuint CreateShaderProgram(const GLchar* vsCode, const GLchar* fsCode){
 
+		DebugLogger::Log("Compiling vs Shader... ", DebugLogger::Infomation, false);
 		GLuint vs = CompileShader(GL_VERTEX_SHADER, vsCode);
+		DebugLogger::Log("Compiling fs Shader... ", DebugLogger::Infomation, false);
 		GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fsCode);
 		if (!vs || !fs) {
 			return 0;
 		}
+
+		DebugLogger::Log("LinkState... ", DebugLogger::Infomation, false);
+
 		GLuint program = glCreateProgram();
 		glAttachShader(program, fs);
 		glDeleteShader(fs);
@@ -116,12 +124,17 @@ namespace Shader {
 				buf.resize(infoLen);
 				if (static_cast<int>(buf.size()) >= infoLen) {
 					glGetProgramInfoLog(program, infoLen, NULL, buf.data());
-					std::cerr << "[Error]: Link faild!\n Desc: " << buf.data() << std::endl;
+
+					std::string logstr("Program link faild! error message:");
+					logstr.append(buf.data());
+					DebugLogger::Log(logstr.c_str(), DebugLogger::Error);
 				}
 			}
 			glDeleteProgram(program);
 			return 0;
 		}
+
+		DebugLogger::Log("all complete.");
 		return program;
 	}
 
@@ -171,35 +184,60 @@ namespace Shader {
 
 	ProgramPtr Buffer::Create(const char* vsPass, const char* fsPass, const char* shaderName){
 
-		std::cout << "[Info]: Creating Program...";
+		DebugLogger::LogBuffer& logInst = DebugLogger::LogBuffer::Instance();
+
+		std::string logstr("Creating '' Program");
+		logstr.insert(sizeof("Creating '") - 1, shaderName);
+
+		DebugLogger::Log(logstr.c_str(),DebugLogger::Infomation);
 
 		struct Impl : Program { Impl() {} ~Impl() {} };
 		ProgramPtr_s p = std::make_shared<Impl>();
 
 		if (!p) {
-			std::cout << "\n[Error]: Could not allocate memory!!" << std::endl;
+			DebugLogger::Log("Could not allocate memory!!", DebugLogger::Error);
 			return {};
 		}
 
 		std::vector<char> vsBuf, fsBuf;
-		ReadFromFile(vsPass, vsBuf);
-		ReadFromFile(fsPass, fsBuf);
+		DebugLogger::Log("Reading... ", DebugLogger::Infomation, false);
+		if (!ReadFromFile(vsPass, vsBuf) || !ReadFromFile(fsPass, fsBuf)) {
+			DebugLogger::Log("Read failed!");
+		}
+		DebugLogger::Log("complete.");
 
 		p->program = CreateShaderProgram(vsBuf.data(), fsBuf.data());
+
+		logstr.clear();
 
 		//サンプラーの数と位置を取得する
 		GLint activeUniforms;
 		glGetProgramiv(p->program, GL_ACTIVE_UNIFORMS, &activeUniforms);
+		logstr = "ActiveUniforms size:";
+		logstr.append(std::to_string(activeUniforms));
+		DebugLogger::Log(logstr.c_str());
 		for (int i = 0; i < activeUniforms; ++i) {
 			GLint size;
 			GLenum type;
 			GLchar name[128];
+
 			glGetActiveUniform(p->program, i, sizeof(name), nullptr, &size, &type, name);
+			
+			logstr.clear();
+			logstr = "Uniform name:  type:  size:  ";
+			logstr.insert(sizeof("Uniform name: ") - 1, name);
+			auto typestr = glGetString(type);
+		//	logstr.insert(sizeof("Uniform name:  type: ") - 1, static_cast<const char>();
+		//		DebugLogger::Log();
+
 			if (type == GL_SAMPLER_2D) {
 				p->samperCount = size;
 				p->samplerLocation = glGetUniformLocation(p->program, name);
 				if (p->samplerLocation < 0) {
-					std::cerr << "ERROR: プログラム'" << vsPass << "'の作成に失敗しました" << std::endl;
+
+					std::string errstr = "ERROR: プログラム'""'の作成に失敗しました";
+					errstr.insert(sizeof("ERROR: プログラム'") - 1, vsPass);
+					DebugLogger::Log(errstr.c_str());
 					return {};
 				}
 				break;

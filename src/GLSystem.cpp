@@ -27,7 +27,7 @@ namespace GLSystem {
 		this->width = width;
 		this->height = height;
 
-		inst.Log("GLSystem is Initializing...");
+		inst.Log("GLSystem is Initializing...", DebugLogger::Infomation, false);
 
 		try {
 
@@ -82,7 +82,7 @@ namespace GLSystem {
 
 	Window::~Window(){
 
-		DebugLogger::LogBuffer::Instance().Log("Fainalized GLsystem");
+//		DebugLogger::LogBuffer::Instance().Log("Fainalized GLsystem");
 		if (glfwInitialized) {
 			glfwTerminate();
 		}

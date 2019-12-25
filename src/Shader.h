@@ -29,6 +29,7 @@ namespace Shader {
 		*/
 		static ProgramPtr Create(const char* vsPass, const char* fsPass);
 
+		GLuint Id() const { return program; }
 		/**
 		*	プログラムオブジェクトの有効化
 		*
@@ -58,6 +59,11 @@ namespace Shader {
 		*	@param matVP	ビュー射影変換行列
 		*/
 		void SetViewProjectionMatrix(const glm::mat4& matVP);
+		
+		/**
+		*	時間の設定処理
+		*/
+		void SetTime(float time);
 
 	private:
 

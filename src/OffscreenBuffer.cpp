@@ -3,23 +3,27 @@
 */
 #include "OffscreenBuffer.h"
 #include "Texture.h"
+#include "DebugLogger.h"
 #include <GL/glew.h>
 #include <iostream>
 
 OffscreenBuffer::~OffscreenBuffer(){
 
-	std::cout << "[Info]: Offscreenbuffer finalized" << std::endl;
+	//DebugLogger::Log("Offscreenbuffer finalized");
 
-	//if (offTexture.expired() && offTexture.lock()->Id()) {
-	//	glDeleteTextures(0, offTexture.lock()->Id());
-	//}
 }
 
 OffscreenBufferPtr OffscreenBuffer::Create(int width, int height, GLenum iformat){
 
-	struct Impl : OffscreenBuffer{};
+	DebugLogger::Log("OffscreenBuffer::Create() ", DebugLogger::Infomation, false);
 
+	struct Impl : OffscreenBuffer{};
 	auto p = std::make_shared<Impl>();
+	if (!p) {
+
+		DebugLogger::Log("creation faild!", DebugLogger::Error);
+		return {};
+	}
 
 	GLenum texFormat = GL_RGBA;
 	switch (iformat) {
@@ -64,9 +68,11 @@ OffscreenBufferPtr OffscreenBuffer::Create(int width, int height, GLenum iformat
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "[Error]: Framebuffer generate faild!" << std::endl;
+		DebugLogger::Log("Framebuffer generate faild!", DebugLogger::Error);
 	}
 	
+	DebugLogger::Log("completed.");
+	return p;
 }
 
 bool OffscreenBuffer::Init(int width, int height, GLenum iformat){

@@ -12,8 +12,6 @@
 #include <string>
 #include <functional>
 
-using drawCallback = std::function<bool()>;
-
 class GameEngine {
 public:
 
@@ -55,17 +53,6 @@ private:
 
 private:
 
-	struct RenderState {
-		OffscreenBufferPtr framebuffer;	///< フレームバッファオブジェクト
-		glm::vec4 clearColor;			///< バッファのクリア色
-		GLenum ClearBuffer;				///< クリアするバッファビット
-		std::vector<GLenum> enableList;	///< 有効化するGLステートリスト
-		std::vector<GLenum> disableList;///< 無効化するGLステートリスト
-		drawCallback callback;			///< 描画に使用されるコールバック
-	};
-
-	std::list<RenderState> renderStateList;		///< 描画ステートリスト
-
 	glm::vec2 windowSize;				///< ウインドウサイズ(マスターの解像度)
 	VertexArrayObject backBufferVao;	///< バックバッファのVAO
 
@@ -73,7 +60,7 @@ private:
 		progBackRender,					///< バックバッファ描画用シェーダ
 		progFontRenderer;					///< フォント描画用シェーダ
 
-	OffscreenBuffer offBuffer;			///< オフスクリーンバッファ
+	OffscreenBufferPtr offBuffer;			///< オフスクリーンバッファ
 
 	Texture::Image2DPtr sampleTexture;	///< サンプル用テクスチャ(デバッグ用)
 };
