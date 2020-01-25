@@ -27,8 +27,8 @@ namespace Mesh {
 	struct Node;
 	struct ExtendedFile;
 	using ExtendedFilePtr = std::shared_ptr<ExtendedFile>;
-	class SkeletalMesh;
-	using SkeletalMeshPtr = std::shared_ptr<SkeletalMesh>;
+//	class SkeletalMesh;
+//	using SkeletalMeshPtr = std::shared_ptr<SkeletalMesh>;
 
 	struct Vertex {
 		glm::vec3 position;
@@ -123,12 +123,12 @@ namespace Mesh {
 		//Shader::ProgramPtr progTerrain;
 		//Shader::ProgramPtr progWater;
 
-		struct MeshIndex {
+		/*struct MeshIndex {
 			ExtendedFilePtr file;
 			const Node* node = nullptr;
 		};
 		std::unordered_map<std::string, MeshIndex> meshes;
-		std::unordered_map<std::string, ExtendedFilePtr> extendedFiles;
+		std::unordered_map<std::string, ExtendedFilePtr> extendedFiles;*/
 	};
 
 	void Draw(const FilePtr&, const glm::mat4& matM);

@@ -369,8 +369,8 @@ namespace Mesh {
 		}
 
 		//スタティックメッシュ用のシェーダを読み込む
-		progStaticMesh = Shader::Program::Create("Res/StaticMesh.vert", "Res/StaticMesh.frag");
-		if (!progStaticMesh.expired()) {
+		progStaticMesh = Shader::Buffer::Create("Res/Shader/StaticMesh.vert", "Res/Shader/StaticMesh.frag");
+		if (progStaticMesh.expired()) {
 			return false;
 		}
 
@@ -546,7 +546,7 @@ namespace Mesh {
 	*/
 	void Buffer::AddCube(const char* name) {
 
-		static const Texture::Image2DPtr defaultTex = Texture::Buffer::LoadFromFile("res/player.dds");
+		static const Texture::Image2DPtr defaultTex = Texture::Buffer::LoadFromFile("res/texture/sampleTex2.dds");
 
 		//    6---7	       +y-z
 		//   /|  /|        |/
@@ -692,7 +692,7 @@ namespace Mesh {
 	*/
 	void Draw(const FilePtr& file, const glm::mat4& matM){
 
-		glEnable(GL_DEPTH_TEST);
+	//	glEnable(GL_DEPTH_TEST);
 
 		if (!file || file->meshes.empty() || file->materials.empty()) {
 			return;
@@ -713,15 +713,15 @@ namespace Mesh {
 
 					glActiveTexture(GL_TEXTURE0 + i);
 
-					if (m.texture[i]) {
-						glBindTexture(m.texture[i]->Target(), m.texture[i]->Get());
+					if (!m.texture[i].expired()) {
+						glBindTexture(m.texture[i].lock()->Target(), m.texture[i].lock()->Id());
 					}
 					else {
 						glBindTexture(GL_TEXTURE_2D, 0);
 					}
 				}
 
-				glDrawElementsBaseVertex(p.mode, p.count, p.type, p.indices, p.baseVertex);
+				glDrawElementsBaseVertex(p.mode, p.count, p.type, const_cast<void*>(p.indices), p.baseVertex);
 				p.vao->UnBind();
 			}
 		}
