@@ -31,6 +31,13 @@ namespace Texture {
 		GLuint Id() const { return texId; }
 
 		/**
+		*	テクスチャターゲットを取得
+		*
+		*	@return テクスチャターゲット
+		*/
+		GLuint Target() const { return target; }
+
+		/**
 		*	テクスチャ・ラップ・モードの設定
 		*
 		*	適用するテクスチャ・ラップ・モード
@@ -80,10 +87,11 @@ namespace Texture {
 		Image2D(const Image2D&) = delete;
 		Image2D& operator=(const Image2D&) = delete;
 
-		GLuint texId = 0;	///< テクスチャのID
-		int width = 0;		///< テクスチャの幅
-		int height = 0;		///< テクスチャの高さ
-		std::string texName;	///< テクスチャ名(デフォルトでファイル名)
+		GLenum target = GL_TEXTURE_2D;	///< テクスチャ・ターゲット
+		GLuint texId = 0;				///< テクスチャのID
+		int width = 0;					///< テクスチャの幅
+		int height = 0;					///< テクスチャの高さ
+		std::string texName;			///< テクスチャ名(デフォルトでファイル名)
 	};
 
 	/**
@@ -121,7 +129,7 @@ namespace Texture {
 		*	@return 作成に成功した場合はテクスチャポインタを返す
 		*			失敗した場合はnullptrを返す
 		*/
-		static std::shared_ptr<Image2D> Create(int width, int height, GLenum iformat, GLenum format, const void* data);
+		static Image2DPtr Create(int width, int height, GLenum iformat, GLenum format, const void* data);
 
 		/**
 		*	バッファ内から指定したテクスチャ王ジェクトを取得します

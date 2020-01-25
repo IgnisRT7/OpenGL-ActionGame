@@ -340,12 +340,12 @@ namespace Texture {
 
 		auto p = Create(width, height, GL_RGB8, GL_BGR, buf.data() + offsetBytes);
 		
-		if (!p) {
+		if (!p.expired()) {
 			return {};
 		}
 		
-		p->Name(filename);
-		Buffer::Instance().imageList[filename] = p;
+		p.lock()->Name(filename);
+		Buffer::Instance().imageList[filename] = p.lock();
 
 		return p;
 	}
@@ -353,7 +353,7 @@ namespace Texture {
 	Buffer::~Buffer(){
 	}
 
-	std::shared_ptr<Image2D> Buffer::Create(int width, int height, GLenum iformat, GLenum format, const void* data) {
+	Image2DPtr Buffer::Create(int width, int height, GLenum iformat, GLenum format, const void* data) {
 
 		GLenum type;
 
