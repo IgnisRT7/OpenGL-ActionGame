@@ -8,6 +8,7 @@
 #include "OffscreenBuffer.h"
 #include "Texture.h"
 #include "Shader.h"
+#include "Mesh.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <functional>
@@ -62,5 +63,26 @@ private:
 
 	OffscreenBufferPtr offBuffer;			///< オフスクリーンバッファ
 
+	Mesh::Buffer meshBuffer;
+	Mesh::FilePtr planeTest;			///< 平面ポリゴンメッシュ(デバッグ用)
+
 	Texture::Image2DPtr sampleTexture;	///< サンプル用テクスチャ(デバッグ用)
+
+	Shader::ProgramPtr progTest;
+
+	BufferObject vboTest, iboTest;
+	VertexArrayObject vaoTest;
+
+	struct Vertex {
+		glm::vec3 position;
+		glm::vec2 texCoord;
+		glm::vec3 normal;
+	};
+	const std::vector<Vertex> vertices = {
+	{ {-1,-1, 0 }, { 0, 0 }, { 0, 0, 1 }},	//左上
+	{ { 1,-1, 0 }, { 1, 0 }, { 0, 0, 1 }},	//右上
+	{ { 1, 1, 0 }, { 1, 1 }, { 0, 0, 1 }},	//右下
+	{ {-1, 1, 0 }, { 0, 1 }, { 0, 0, 1 }}, };	//左下
+	const std::vector<GLubyte> indices = { 0,1,2,2,3,0 };
+
 };

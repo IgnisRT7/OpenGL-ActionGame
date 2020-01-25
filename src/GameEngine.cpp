@@ -5,6 +5,7 @@
 #include "DebugLogger.h"
 #include "RenderingPart.h"
 #include "Resource.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 GameEngine& GameEngine::Instance(){
 
@@ -66,6 +67,24 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		if (!offBuffer) {
 			throw("offscreen buffer creation failed!!");
 		}
+
+		meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 1'000'000 * sizeof(GLushort));
+		planeTest = meshBuffer.AddPlane("ParticlePlane");
+
+		//デバッグ用頂点データの初期化
+		progTest = Shader::Buffer::Create("res/shader/StaticMesh.vert", "res/shader/StaticMesh.frag");
+		vboTest.Init("testVBO", GL_ARRAY_BUFFER, 10000 * sizeof(Vertex), reinterpret_cast<const GLvoid*>(this->vertices.data()), GL_STATIC_DRAW);
+		iboTest.Init("testIBO", GL_ELEMENT_ARRAY_BUFFER, 10000 * sizeof(GLushort), reinterpret_cast<const GLvoid*>(this->indices.data()), GL_STATIC_DRAW);
+		vaoTest.Init(vboTest.GetId(), iboTest.GetId());
+		if (vaoTest.Bind()) {
+			vaoTest.VertexAttribPointer(0, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, position)));
+			vaoTest.VertexAttribPointer(1, 2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, texCoord)));
+			vaoTest.VertexAttribPointer(2, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<GLvoid*>(offsetof(Vertex, normal)));
+			vaoTest.UnBind(true);
+		}
+	
+		meshBuffer.LoadMesh("res\mesh\red_pine_tree\red_pine_tree.bin");
+
 	}
 	catch (const char* errStr) {
 
@@ -109,27 +128,36 @@ void GameEngine::Render(){
 
 	GLSystem::Window& window = GLSystem::Window::Instance();
 
-	float aspect = 800.0f / 600.0f;
+	static float timer = 0;
+	timer += 1 / 60.0f;
+
+
+	float aspect = 1048.0f / 800.0f;
 	glm::mat4 matView = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 500.0f);
+	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 1000.0f);
 	glm::mat4 matVP = matProj * matView;
-	matVP = glm::identity<glm::mat4>();
+//	matVP = glm::identity<glm::mat4>();
+
+	glm::mat4 matModel = glm::identity<glm::mat4>();
+	//matModel = glm::rotate(glm::identity<glm::mat4>(), timer * 0.01f, glm::vec3(0, 1, 0));
 
 	//オフスクリーンバッファに描画
 	glBindFramebuffer(GL_FRAMEBUFFER, offBuffer->GetFrameBuffer());
-
-	glClearColor(0.1f, 0.8f, 0.8f, 1.0f);
+	//const auto texMain = offBuffer->GetTexture();
+	glViewport(0, 0, offBuffer->GetOffscreenWidth(), offBuffer->GetOffscreenHeight());
+	glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	glEnable(GL_BLEND);
 
-	auto prog_s = progOffBuffer.lock();
+/*	auto prog_s = progOffBuffer.lock();
 	prog_s->UseProgram();
 
 	//サンプルテクスチャバインドのコード
 	prog_s->BindTexture(GL_TEXTURE0, sampleTexture.lock()->Id());
 	prog_s->SetViewProjectionMatrix(matVP);
+	prog_s->SetModelMatrix(matModel);
 	if (backBufferVao.Bind()) {
 
 		glDrawElements(
@@ -137,11 +165,35 @@ void GameEngine::Render(){
 			GL_UNSIGNED_INT, Rendering::parts[0].offset);
 
 		backBufferVao.UnBind();
+	}*/
+
+	//Mesh::Draw(meshBuffer.GetFile("Cube"), matModel);
+
+	auto progTest_s = progTest.lock();
+	progTest_s->UseProgram();
+	progTest_s->SetModelMatrix(glm::identity<glm::mat4>());
+	progTest_s->SetViewProjectionMatrix(matVP);
+
+//	iboTest
+
+	if (vaoTest.Bind()) {
+
+		auto data = reinterpret_cast<const void*>(indices.data());
+		glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(iboTest.Size()),GL_UNSIGNED_BYTE,&data,0);
+		//glDrawArrays(GL_TRIANGLES, 0, sizeof(iboTest.Size()));
+		
+//		glDrawElements(GL_TRIANGLES, iboTest.Size(), GL_UNSIGNED_BYTE, data);
+
+		vaoTest.UnBind();
 	}
+	glUseProgram(0);
+
+	//Mesh::Draw(this->planeTest, glm::rotate(glm::mat4(), timer * 0.3f, glm::vec3(0, 1, 0)));
 	
 	//バックバッファに描画
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(1, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	auto progBack_s = progBackRender.lock();
 	progBack_s->UseProgram();
