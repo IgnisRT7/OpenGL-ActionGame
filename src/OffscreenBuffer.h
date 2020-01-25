@@ -34,6 +34,16 @@ public:
 	GLuint GetTexture() const { return offTexture.lock()->Id(); }
 
 	/**
+	*	オフスクリーンバッファのテクスチャ横の取得
+	*/
+	GLsizei GetOffscreenWidth() const { return offTexture.lock()->Width(); }
+
+	/**
+	*	オフスクリーンバッファのテクスチャ縦の取得
+	*/
+	GLsizei GetOffscreenHeight() const { return offTexture.lock()->Height(); }
+
+	/**
 	*	オフスクリーンバッファの取得
 	*
 	*	@return オフスクリーンバッファのID
