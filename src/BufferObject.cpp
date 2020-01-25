@@ -23,25 +23,15 @@ bool BufferObject::Init(const char* name, GLenum target, GLsizeiptr size, const 
 	}
 
 	glGenBuffers(1, &id);
-	glBindBuffer(target,id);
-	if (data != nullptr) {
-
-		glBufferData(target, size, data, usage);
-		if (auto err = glGetError()) {
-			DebugLogger::Log("BufferSubData faild!", DebugLogger::Error);
-			return false;
-		}
-
+	glBindBuffer(target, id);
+	glBufferData(target, size, data, usage);
+	if (auto err = glGetError()) {
+		DebugLogger::Log("BufferSubData faild!", DebugLogger::Error);
+		return false;
 	}
 
 	//unbind
 	glBindBuffer(target, 0);
-
-	if (auto err = glGetError() != GL_NO_ERROR) {
-		DebugLogger::Log("bufferobject creation failed! ", DebugLogger::LogType::Error);
-
-		return false;
-	}
 
 	this->name = name;
 	this->target = target;
