@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 
+#define TO_STRING(var) #var
+
 namespace Shader {
 
 	/**
@@ -148,12 +150,24 @@ namespace Shader {
 	}
 
 	void Program::SetViewProjectionMatrix(const glm::mat4& matVP){
-		
+
+		if (locationList.find(LocationType::ViewProjectionMatrix) != locationList.end()) {
+
+			glUniformMatrix4fv(locationList[LocationType::ViewProjectionMatrix], 1, GL_FLOAT, &matVP[0][0]);
+		}
+		/*
 		if (matVPLocation >= 0) {
 
 			glUniformMatrix4fv(matVPLocation, 1, GL_FLOAT, &matVP[0][0]);
-		}
+		}*/
+	}
 
+	void Program::SetModelMatrix(const glm::mat4& matM) {
+
+		if (locationList.find(LocationType::ViewProjectionMatrix) != locationList.end()) {
+
+			glUniformMatrix4fv(locationList[LocationType::ModelMatrix], 1, GL_FLOAT, &matM[0][0]);
+		}
 	}
 
 	Program::~Program() {
@@ -166,7 +180,7 @@ namespace Shader {
 	bool Program::UseProgram() const{
 
 		glUseProgram(program);
-		return glGetError == GL_NO_ERROR;
+		return glGetError() == GL_NO_ERROR;
 	}
 
 
@@ -188,7 +202,6 @@ namespace Shader {
 
 		std::string logstr("Creating '' Program");
 		logstr.insert(sizeof("Creating '") - 1, shaderName);
-
 		DebugLogger::Log(logstr.c_str(),DebugLogger::Infomation);
 
 		struct Impl : Program { Impl() {} ~Impl() {} };
@@ -224,11 +237,13 @@ namespace Shader {
 			glGetActiveUniform(p->program, i, sizeof(name), nullptr, &size, &type, name);
 			
 			logstr.clear();
-			logstr = "Uniform name:  type:  size:  ";
-			logstr.insert(sizeof("Uniform name: ") - 1, name);
-			auto typestr = glGetString(type);
-		//	logstr.insert(sizeof("Uniform name:  type: ") - 1, static_cast<const char>();
-		//		DebugLogger::Log();
+			logstr = "Uniform name: ";
+			logstr.append(name);
+			logstr.append(" type: ");
+			logstr.append(std::to_string(type));
+			logstr.append(" size ");
+			logstr.append(std::to_string(size));
+			DebugLogger::Log(logstr.c_str());
 
 			if (type == GL_SAMPLER_2D) {
 				p->samperCount = size;
@@ -240,7 +255,16 @@ namespace Shader {
 					DebugLogger::Log(errstr.c_str());
 					return {};
 				}
-				break;
+				continue;
+			}
+
+			//ƒƒP[ƒVƒ‡ƒ“‚ÌŽæ“¾
+			for (auto loc = locationNameMap.begin(); loc != locationNameMap.end(); loc++) {
+			
+				auto location = glGetUniformLocation(p->program, loc->second.c_str());
+				if (location >= 0) {
+					p->locationList[loc->first] = location;
+				}
 			}
 		}
 

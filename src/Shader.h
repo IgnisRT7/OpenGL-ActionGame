@@ -2,10 +2,12 @@
 *	@file Shader.h
 */
 #pragma once
+#include <map>
 #include <unordered_map>
 #include <memory>
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 namespace Shader {
 
@@ -15,19 +17,32 @@ namespace Shader {
 	using ProgramPtr_s = std::shared_ptr<Program>;
 
 	/**
+	*	ロケーションパラメータで利用されるリスト
+	*/
+	enum class LocationType {
+
+		ModelMatrix,
+		ViewMatrix,
+		InverseViewMatrix,
+		ProjectionMatrix,
+		ViewProjectionMatrix,
+	};
+
+	/**
+	*	ロケーションタイプに応じたシェーダのネームリスト
+	*/
+	static std::map<LocationType, std::string> locationNameMap = {
+
+		{ LocationType::ModelMatrix, "matModel" },
+		{ LocationType::ViewProjectionMatrix, "matVP" },
+	};
+
+	/**
 	*	プログラムオブジェクトの管理クラス
 	*/
 	class Program {
 		friend class Buffer;
 	public:
-
-		/**
-		*	プログラム作成処理
-		*
-		*	@param vsPass 頂点シェーダのファイルパス
-		*	@param fsPass フラグメントシェーダのファイルパス
-		*/
-		static ProgramPtr Create(const char* vsPass, const char* fsPass);
 
 		GLuint Id() const { return program; }
 		/**
@@ -61,9 +76,25 @@ namespace Shader {
 		void SetViewProjectionMatrix(const glm::mat4& matVP);
 		
 		/**
-		*	時間の設定処理
+		*	モデル行列の設定処理
+		*
+		*	@param matM		モデル行列
 		*/
-		void SetTime(float time);
+		void SetModelMatrix(const glm::mat4& matM);
+
+		/**
+		*	時間の設定処理
+		*
+		*	@param time	時間
+		*/
+		void SetTime(const float time) {}
+
+		/**
+		*	カメラ座標の設定
+		*
+		*	@param pos	座標
+		*/
+		void SetCameraPosition(const glm::vec3& pos) {}
 
 	private:
 
@@ -73,6 +104,8 @@ namespace Shader {
 		const Program& operator=(const Program&) = delete;
 
 	private:
+		
+		std::map<LocationType, GLint> locationList;	///< 有効なロケーションリスト
 
 		GLint matVPLocation = -1;	///< MVPロケーション位置
 
