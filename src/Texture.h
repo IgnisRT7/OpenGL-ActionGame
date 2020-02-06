@@ -139,7 +139,7 @@ namespace Texture {
 		*	@retval texture	見つかったテクスチャオブジェクト名
 		*	@retval nullptr	指定したテクスチャが存在していなかった
 		*/
-		Image2DPtr FindTexture(const char* name);
+		Image2DPtr FindTexture(const std::string name);
 	
 	private:
 
@@ -151,7 +151,6 @@ namespace Texture {
 	private:
 
 		using ImageMapType = std::unordered_map<std::string, Image2DPtr_s >;	///< テクスチャ保存用キータイプ
-		
 		
 		ImageMapType imageList;	///< テクスチャリスト
 
