@@ -23,9 +23,9 @@ namespace Font {
 
 	FontDataPtr Buffer::CreateFontFromFile(const char* filename){
 		
+		//allocate memory
 		struct Impl : FontData {  };
 		auto p = std::make_shared<Impl>();
-
 		if (!p) {
 			std::cerr << "[Error]: FontBuffer create error!" << std::endl;
 			return {};
@@ -117,10 +117,13 @@ namespace Font {
 			++line;
 		}
 
+		//フォント用テクスチャの読み込み
 		for (auto& texName : texNameList) {
 			p->textureList.push_back(Texture::Buffer::Instance().LoadFromFile(texName.c_str()));
 		}
 
+		//フォント名はファイル名から拡張子を除いた部分となる
+		
 		fontList[filename] = p;
 
 		return p;
@@ -152,11 +155,13 @@ namespace Font {
 		std::vector<GLushort> indexBuf;
 		indexBuf.resize(maxChar * 6);
 		GLushort* p = indexBuf.data();
-		for (GLushort i = 0; i < maxChar * 4; i += 4) {
+
+		for (GLushort i = 0; i < maxChar; i++) {
 			for (GLushort n : {0, 1, 2, 2, 3, 0}) {
-				*(p++) = i * n;
+				*(p++) = n + i * 4;
 			}
 		}
+
 		ibo.Init("FontIBO", GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * maxChar, indexBuf.data());
 
 		vao.Init(vbo.GetId(), ibo.GetId());
@@ -202,8 +207,8 @@ namespace Font {
 		const glm::vec2 halfScreenSize = screenSize * 0.5f;
 		const glm::mat4x4 matProj = glm::ortho(
 			-halfScreenSize.x, halfScreenSize.x, -halfScreenSize.y, halfScreenSize.y,
-			1.0f, 1000.0f);
-		const glm::mat4x4 matView = glm::lookAt(glm::vec3(0, 0, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+			1.0f, 100.0f);
+		const glm::mat4x4 matView = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 		progShader->SetViewProjectionMatrix(matProj * matView);
 
 		for (const Primitive& primitive : primitives) {
@@ -212,8 +217,10 @@ namespace Font {
 			glDrawElements(GL_TRIANGLES, primitive.count, GL_UNSIGNED_SHORT, reinterpret_cast<const GLvoid*>(primitive.offset));
 		}
 
-		progShader->BindTexture(0, 0);
+		progShader->BindTexture(GL_TEXTURE0, 0);
 		vao.UnBind();
+
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::AddString(const glm::vec3& position, const wchar_t* str, FontDataPtr font){
@@ -229,6 +236,7 @@ namespace Font {
 
 		for (const wchar_t* itr = str; *itr; itr++) {
 
+			//描画データに必要なフォントデータの情報を取得する
 			auto& info = rawFont->characterInfoList[*itr];
 
 			//スプライトの座標が画像の中心をしていするが、フォントは左上を指定する
@@ -236,11 +244,10 @@ namespace Font {
 			//const float baseX = info.size.x * 0.5f + info.offset.x;
 			//const float baseY = rawFont->base - info.size.y * 0.5f - info.offset.y;
 			//glm::vec3 pos = glm::vec3(position + glm::vec2(baseX, baseY), 0);
-
-			AddVertices(info, rawFont->textureList[info.page], position);
+			auto yPos = tmpPos.y + -info.offset.y;
+			AddVertices(info, rawFont->textureList[info.page], glm::vec3(tmpPos + glm::vec2(0,yPos), 0));
 
 			tmpPos.x += info.xadvance;
-
 		}
 	}
 
@@ -267,6 +274,8 @@ namespace Font {
 		glm::vec2 halfSize = charaData.size * 0.5f;
 		glm::mat4  matTRS = glm::translate(glm::identity<glm::mat4>(), position);
 
+		//TODO: フォントサイズの調整処理の追加
+
 		Vertex vertex[4];
 
 		//
@@ -277,13 +286,13 @@ namespace Font {
 
 		vertex[0].position = matTRS * glm::vec4(-halfSize.x, -halfSize.y, 0, 1);
 		vertex[1].position = matTRS * glm::vec4( halfSize.x, -halfSize.y, 0, 1);
-		vertex[2].position = matTRS * glm::vec4( halfSize.x,  halfSize.y, 0, 1);
-		vertex[3].position = matTRS * glm::vec4(-halfSize.x,  halfSize.y, 0, 1);
+		vertex[2].position = matTRS * glm::vec4( halfSize.x, halfSize.y, 0, 1);
+		vertex[3].position = matTRS * glm::vec4(-halfSize.x, halfSize.y, 0, 1);
 
-		vertex[0].texcoord = glm::vec2(rect.origin.x, rect.origin.y + rect.size.y);
-		vertex[1].texcoord = glm::vec2(rect.origin + rect.size);
-		vertex[2].texcoord = glm::vec2(rect.origin.x + rect.size.x, rect.origin.y);
-		vertex[3].texcoord = glm::vec2(rect.origin);
+		vertex[0].texcoord = glm::vec2(rect.origin);
+		vertex[1].texcoord = glm::vec2(rect.origin.x + rect.size.x,rect.origin.y);
+		vertex[2].texcoord = glm::vec2(rect.origin + rect.size);
+		vertex[3].texcoord = glm::vec2(rect.origin.x,rect.origin.y + rect.size.y);
 
 		vertex[0].color = glm::vec4(1);
 		vertex[1].color = glm::vec4(1);
@@ -298,9 +307,9 @@ namespace Font {
 			primitives.push_back({ 6,0,texture });
 		}
 		else {
-
 			auto& primitive = primitives.back();
 			if (primitive.texture.lock() == texture.lock()) {
+				//テクスチャが同じなのでカウントだけ増加
 				primitive.count += 6;
 			}
 			else {
