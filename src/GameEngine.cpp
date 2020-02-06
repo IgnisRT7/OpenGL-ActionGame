@@ -27,6 +27,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		if (!window.Init(static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), title.c_str())) {
 			throw("GLsystem initialization failed!!");
 		}
+		this->windowSize = windowSize;
 
 		//バックバッファ用 ibo,vbo 作成
 		BufferObject vbo, ibo;
@@ -72,7 +73,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 		planeTest = meshBuffer.AddPlane("ParticlePlane");
 
 		//デバッグ用頂点データの初期化
-		progTest = Shader::Buffer::Create("res/shader/StaticMesh.vert", "res/shader/StaticMesh.frag");
+		progStaticMesh = Shader::Buffer::Create(ShaderFile::staticMesh_vert, ShaderFile::staticMesh_frag);
 		vboTest.Init("testVBO", GL_ARRAY_BUFFER, 10000 * sizeof(Vertex), reinterpret_cast<const GLvoid*>(this->vertices.data()), GL_STATIC_DRAW);
 		iboTest.Init("testIBO", GL_ELEMENT_ARRAY_BUFFER, 10000 * sizeof(GLushort), reinterpret_cast<const GLvoid*>(this->indices.data()), GL_STATIC_DRAW);
 		vaoTest.Init(vboTest.GetId(), iboTest.GetId());
@@ -83,8 +84,10 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 			vaoTest.UnBind(true);
 		}
 	
-		meshBuffer.LoadMesh("res\mesh\red_pine_tree\red_pine_tree.bin");
-
+		//meshBuffer.LoadMesh(MeshFile::treeModel);
+		fontRenderer.Init(1000, windowSize);
+		fontNormal = Font::Buffer::Instance().CreateFontFromFile("res/Font/Font.fnt");
+		fontNormal.lock()->Shader(Shader::Buffer::Create("res/shader/FontRenderer.vert", "res/shader/FontRenderer.frag"));
 	}
 	catch (const char* errStr) {
 
@@ -121,6 +124,7 @@ void GameEngine::Run(){
 		//各行列データ転送処理
 		
 		Render();
+
 	}
 }
 
@@ -131,9 +135,8 @@ void GameEngine::Render(){
 	static float timer = 0;
 	timer += 1 / 60.0f;
 
-
-	float aspect = 1048.0f / 800.0f;
-	glm::mat4 matView = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	float aspect = windowSize.x / windowSize.y;
+	glm::mat4 matView = glm::lookAt(glm::vec3(0, 0, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 1000.0f);
 	glm::mat4 matVP = matProj * matView;
 //	matVP = glm::identity<glm::mat4>();
@@ -151,7 +154,9 @@ void GameEngine::Render(){
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 
-/*	auto prog_s = progOffBuffer.lock();
+#if false
+
+	auto prog_s = progOffBuffer.lock();
 	prog_s->UseProgram();
 
 	//サンプルテクスチャバインドのコード
@@ -165,11 +170,15 @@ void GameEngine::Render(){
 			GL_UNSIGNED_INT, Rendering::parts[0].offset);
 
 		backBufferVao.UnBind();
-	}*/
+	}
 
-	//Mesh::Draw(meshBuffer.GetFile("Cube"), matModel);
 
-	auto progTest_s = progTest.lock();
+#else
+
+//	Mesh::Draw(meshBuffer.GetFile("Cube"), glm::identity<glm::mat4>());
+	Mesh::Draw(meshBuffer.GetFile("ParticlePlane"), glm::identity<glm::mat4>());
+
+	/*auto progTest_s = progStaticMesh.lock();
 	progTest_s->UseProgram();
 	progTest_s->SetModelMatrix(glm::identity<glm::mat4>());
 	progTest_s->SetViewProjectionMatrix(matVP);
@@ -186,14 +195,18 @@ void GameEngine::Render(){
 
 		vaoTest.UnBind();
 	}
-	glUseProgram(0);
+	glUseProgram(0);*/
 
+#endif
 	//Mesh::Draw(this->planeTest, glm::rotate(glm::mat4(), timer * 0.3f, glm::vec3(0, 1, 0)));
 	
 	//バックバッファに描画
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(1, 0, 0, 1);
+	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, windowSize.x, windowSize.y);
+
+	glDisable(GL_DEPTH_TEST);
 	
 	auto progBack_s = progBackRender.lock();
 	progBack_s->UseProgram();
@@ -204,13 +217,18 @@ void GameEngine::Render(){
 	if (backBufferVao.Bind()) {
 
 		glDrawElements(
-			GL_TRIANGLES, Rendering::parts[0].size,
-			GL_UNSIGNED_INT, Rendering::parts[0].offset);
+			GL_TRIANGLES, Rendering::parts[1].size,
+			GL_UNSIGNED_INT, Rendering::parts[1].offset);
 
 		backBufferVao.UnBind();
 	}
 
 	glUseProgram(0);
+
+	fontRenderer.MapBuffer();
+	fontRenderer.AddString(glm::vec3(0), L"デバッグ用テキストfkajehrea", fontNormal);
+	fontRenderer.UnMapBuffer();
+	fontRenderer.Draw();
 
 	window.SwapBuffers();
 }

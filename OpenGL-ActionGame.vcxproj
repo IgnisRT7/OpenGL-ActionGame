@@ -160,9 +160,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="RenderingPart.h" />
+    <ClInclude Include="src\BitmapLoader.h" />
     <ClInclude Include="src\BufferObject.h" />
     <ClInclude Include="src\CameraController.h" />
     <ClInclude Include="src\CommonItem.h" />
+    <ClInclude Include="src\ddsLoader.h" />
     <ClInclude Include="src\DebugLogger.h" />
     <ClInclude Include="src\EnumOperator.h" />
     <ClInclude Include="src\Font.h" />
@@ -191,8 +193,10 @@
     <None Include="res\shader\StaticMesh.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\BitmapLoader.cpp" />
     <ClCompile Include="src\BufferObject.cpp" />
     <ClCompile Include="src\CameraController.cpp" />
+    <ClCompile Include="src\ddsLoader.cpp" />
     <ClCompile Include="src\DebugLogger.cpp" />
     <ClCompile Include="src\Font.cpp" />
     <ClCompile Include="src\GameEngine.cpp" />
