@@ -9,6 +9,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Font.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <functional>
@@ -68,7 +69,10 @@ private:
 
 	Texture::Image2DPtr sampleTexture;	///< サンプル用テクスチャ(デバッグ用)
 
-	Shader::ProgramPtr progTest;
+	Shader::ProgramPtr progStaticMesh;
+
+	Font::Renderer fontRenderer;
+	Font::FontDataPtr fontNormal;
 
 	BufferObject vboTest, iboTest;
 	VertexArrayObject vaoTest;
