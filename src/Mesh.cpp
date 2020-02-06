@@ -3,6 +3,7 @@
 */
 #define NOMINMAX
 #include "Mesh.h"
+#include "Resource.h"
 //#include "SkeletalMesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
@@ -360,16 +361,13 @@ namespace Mesh {
 	*/
 	bool Buffer::Init(GLsizeiptr vboSize, GLsizeiptr iboSize) {
 
-		if (!vbo.Init("MeshVbo", GL_ARRAY_BUFFER, vboSize)) {
-			return false;
-		}
-
-		if (!ibo.Init("MeshIbo", GL_ELEMENT_ARRAY_BUFFER, iboSize)) {
+		if (!vbo.Init("MeshVbo", GL_ARRAY_BUFFER, vboSize) || 
+			!ibo.Init("MeshIbo", GL_ELEMENT_ARRAY_BUFFER, iboSize)) {
 			return false;
 		}
 
 		//スタティックメッシュ用のシェーダを読み込む
-		progStaticMesh = Shader::Buffer::Create("Res/Shader/StaticMesh.vert", "Res/Shader/StaticMesh.frag");
+		progStaticMesh = Shader::Buffer::Create(ShaderFile::staticMesh_vert, ShaderFile::staticMesh_frag);
 		if (progStaticMesh.expired()) {
 			return false;
 		}
@@ -546,7 +544,12 @@ namespace Mesh {
 	*/
 	void Buffer::AddCube(const char* name) {
 
-		static const Texture::Image2DPtr defaultTex = Texture::Buffer::LoadFromFile("res/texture/sampleTex2.dds");
+		static const Texture::Image2DPtr defaultTex = Texture::Buffer::LoadFromFile(TextureFile::testDebugTexture2);
+
+		if (defaultTex.expired()) {
+			std::cout << "Texture::Buffer::AddCube() テクスチャの読み込みに失敗" << std::endl;
+			return;
+		}
 
 		//    6---7	       +y-z
 		//   /|  /|        |/
@@ -697,6 +700,8 @@ namespace Mesh {
 		if (!file || file->meshes.empty() || file->materials.empty()) {
 			return;
 		}
+
+		std::cout << "Mesh::Draw() name: " << file->name << std::endl;
 
 		const Mesh& mesh = file->meshes[0];
 		for (const Primitive& p : mesh.primitives) {

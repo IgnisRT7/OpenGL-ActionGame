@@ -50,7 +50,7 @@ namespace Mesh {
 	*	頂点データの描画パラメータ
 	*/
 	struct Primitive {
-		GLenum mode = GL_STATIC_DRAW;
+		GLenum mode = GL_STATIC_DRAW;	
 		GLsizei count = 0;
 		GLenum type = GL_NONE;
 		const GLvoid* indices = nullptr;
