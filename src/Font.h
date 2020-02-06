@@ -13,21 +13,15 @@
 #include <string>
 
 
-
 namespace Font {
-
-/**
-*
-*	1,フォント読み込み -制約として読み込めるフォントは1種類のみ
-*	2,
-*
-*
-*/
 
 	//前方宣言
 	class FontData;
 	using FontDataPtr = std::weak_ptr<FontData>;
 
+	/**
+	*	フォント情報が格納されているクラス
+	*/
 	class FontData {
 		friend class Buffer;
 		friend class Renderer;
@@ -69,7 +63,7 @@ namespace Font {
 
 		std::vector<Texture::Image2DPtr> textureList;	///< フォントに使用するテクスチャ
 		std::vector<CharacterInfo> characterInfoList;	///< 文字情報保存データ
-		Shader::ProgramPtr progFont;			///< フォント描画用シェーダ
+		Shader::ProgramPtr progFont;					///< フォント描画用シェーダ
 		std::string texFilename;						///< フォントテクスチャパス
 
 		glm::vec2 scale = {};		///<文字スケール
@@ -77,7 +71,6 @@ namespace Font {
 
 		float lineHeight = 0;
 		float base = 0;
-		
 	};
 
 	class Character {
@@ -107,8 +100,8 @@ namespace Font {
 		/**
 		*	フォントを画像ファイルから作成する
 		*
-		*	@detail 作成したフォントはフォントバッファに格納されており、
-		*			フォントデータを取得するにはGetFont関数を使用して下さい
+		*	@detail 作成したフォントはこのバッファに格納されており、
+		*			フォントデータを取得するにはGetFont関数を使用すること
 		*
 		*	@param filename	使用するフォント名
 		*
@@ -144,7 +137,6 @@ namespace Font {
 		std::unordered_map<std::string, std::shared_ptr<FontData> > fontList;	///< フォントデータ格納先
 
 	};
-
 
 	class Renderer {
 		friend class FontData;
@@ -233,12 +225,5 @@ namespace Font {
 		std::vector<Vertex> vertices;		///< 頂点バッファへ格納するための前バッファ
 		std::vector<Primitive> primitives;	///< プリミティブバッファ
 	};
-
-
-
-
-
-
-
 
 }
