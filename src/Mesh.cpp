@@ -243,7 +243,8 @@ namespace Mesh {
 				std::cerr << "[ƒGƒ‰[]" << __func__ << ": " << path << "‚É•s³‚Èuri‚ª‚ ‚è‚Ü‚·\n";
 				return false;
 			}
-			const std::string binPath = std::string("Res/") + uri.string_value();
+			//
+			const std::string binPath = std::string(MESH_FILEPASS) + uri.string_value();
 			binFiles.push_back(ReadFile(binPath.c_str()));
 			if (binFiles.back().empty()) {
 				return false;

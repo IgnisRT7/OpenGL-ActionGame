@@ -1,4 +1,5 @@
 #pragma once
+ 
 
 namespace ShaderFile {
 
@@ -15,10 +16,11 @@ namespace ShaderFile {
 namespace TextureFile {
 
 	static const char* testDebugTexture = "res/texture/sampleTex.dds";
-	static const char* testDebugTexture2 = "res/texture/sampleTex2.dds";
+	static const char* testDebugTexture2 = "res/texture/debug.dds";
 }
 
+#define MESH_FILEPASS "res/mesh/"
 namespace MeshFile {
 
-	static const char* treeModel = "res\mesh\red_pine_tree\red_pine_tree.bin";
+	static const char* treeModel = "red_pine_tree.gltf";
 }
