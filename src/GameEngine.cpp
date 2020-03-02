@@ -71,6 +71,7 @@ bool GameEngine::Init(glm::vec2 windowSize,std::string title){
 
 		meshBuffer.Init(1'000'000 * sizeof(Mesh::Vertex), 1'000'000 * sizeof(GLushort));
 		planeTest = meshBuffer.AddPlane("ParticlePlane");
+		meshBuffer.LoadMesh(MeshFile::treeModel);
 
 		//デバッグ用頂点データの初期化
 		progStaticMesh = Shader::Buffer::Create(ShaderFile::staticMesh_vert, ShaderFile::staticMesh_frag);
@@ -136,22 +137,25 @@ void GameEngine::Render(){
 	timer += 1 / 60.0f;
 
 	float aspect = windowSize.x / windowSize.y;
-	glm::mat4 matView = glm::lookAt(glm::vec3(0, 0, 100), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 matView = glm::lookAt(glm::vec3(0, 10, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 matProj = glm::perspective(45.0f, aspect, 1.0f, 1000.0f);
 	glm::mat4 matVP = matProj * matView;
 //	matVP = glm::identity<glm::mat4>();
 
 	glm::mat4 matModel = glm::identity<glm::mat4>();
-	//matModel = glm::rotate(glm::identity<glm::mat4>(), timer * 0.01f, glm::vec3(0, 1, 0));
+	matModel = glm::rotate(glm::mat4(), timer * 0.01f, glm::vec3(0, 1, 0));
+	matModel = glm::identity<glm::mat4>();
+	matModel = glm::scale(glm::mat4(1), glm::vec3(1));
 
 	//オフスクリーンバッファに描画
 	glBindFramebuffer(GL_FRAMEBUFFER, offBuffer->GetFrameBuffer());
-	//const auto texMain = offBuffer->GetTexture();
+	//const auto texMa0in = offBuffer->GetTexture();
 	glViewport(0, 0, offBuffer->GetOffscreenWidth(), offBuffer->GetOffscreenHeight());
 	glClearColor(0.5f, 0.6f, 0.8f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glEnable(GL_BLEND);
 
 #if false
@@ -175,27 +179,9 @@ void GameEngine::Render(){
 
 #else
 
-//	Mesh::Draw(meshBuffer.GetFile("Cube"), glm::identity<glm::mat4>());
-	Mesh::Draw(meshBuffer.GetFile("ParticlePlane"), glm::identity<glm::mat4>());
-
-	/*auto progTest_s = progStaticMesh.lock();
-	progTest_s->UseProgram();
-	progTest_s->SetModelMatrix(glm::identity<glm::mat4>());
-	progTest_s->SetViewProjectionMatrix(matVP);
-
-//	iboTest
-
-	if (vaoTest.Bind()) {
-
-		auto data = reinterpret_cast<const void*>(indices.data());
-		glDrawElementsBaseVertex(GL_TRIANGLES, sizeof(iboTest.Size()),GL_UNSIGNED_BYTE,&data,0);
-		//glDrawArrays(GL_TRIANGLES, 0, sizeof(iboTest.Size()));
-		
-//		glDrawElements(GL_TRIANGLES, iboTest.Size(), GL_UNSIGNED_BYTE, data);
-
-		vaoTest.UnBind();
-	}
-	glUseProgram(0);*/
+	meshBuffer.SetViewProjectionMatrix(matVP);
+	Mesh::Draw(meshBuffer.GetFile("Cube"), glm::identity<glm::mat4>());
+	Mesh::Draw(meshBuffer.GetFile("red_pine_tree"), glm::identity<glm::mat4>());
 
 #endif
 	//Mesh::Draw(this->planeTest, glm::rotate(glm::mat4(), timer * 0.3f, glm::vec3(0, 1, 0)));
