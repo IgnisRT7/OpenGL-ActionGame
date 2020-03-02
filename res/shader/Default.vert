@@ -17,5 +17,5 @@ void main() {
 
 	vec4 pos = matM * matVP * vec4(vPosition,1.0);
 
-	gl_Position = pos;
+	gl_Position = vec4(vPosition, 1.0);
 }

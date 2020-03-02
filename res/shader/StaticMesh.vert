@@ -24,5 +24,5 @@ void main()
   outTexCoord = vTexCoord;
  // outNormal = normalize(matNormal * vNormal);
  // outPosition = vec3(matModel * vec4(vPosition, 1.0));
-  gl_Position = matVP * (matModel * vec4(vPosition, 1.0));
+  gl_Position = matVP * (matModel * vec4(vPosition, 1.0)); 
 }

@@ -12,10 +12,10 @@ out vec4 fragColor;
 uniform sampler2D texColor;
 
 /*
-*	スプライト用フラグメントシェーダ
+*	スタティックメッシュ用
 */
 void main(){
 
    fragColor = texture(texColor, inTexCoord);
-  fragColor = vec4(1);
+ // fragColor = vec4(1);
 }
